@@ -1,0 +1,46 @@
+body {
+    display: flex;
+    height: 100vh;
+    justify-content: center;
+    align-items: center;
+    background: #11131e url("../images/Launchersplash.jpg") top center;
+    color: #cacffa;
+    font-weight: bold;
+    text-shadow: 0 0 5px #172329;
+    font-size: 18px;
+    overflow: hidden;
+  }
+  
+  .wrapper {
+      width: auto;
+      height: auto;
+      display: flex;
+      flex-direction: column;
+      align-content: center;
+      align-items: center;
+      justify-content: center;
+  }
+  .loader {
+    position: relative;
+    width: 100px;
+    height: 100px;
+    margin-bottom: 20px;
+  }
+  
+  .loader:before , .loader:after{
+    content: '';
+    border-radius: 50%;
+    position: absolute;
+    inset: 0;
+    box-shadow: 0 0 10px 3px rgba(0, 0, 0, 0.3) inset;
+  }
+  .loader:after {
+    box-shadow: 0 3px 0 #FF3D00 inset;
+    animation: rotate 2s linear infinite;
+  }
+  
+  @keyframes rotate {
+    0% {  transform: rotate(0deg); filter: hue-rotate(0deg);}
+    50% {  transform: rotate(180deg); filter: hue-rotate(180deg);}
+    100% { transform: rotate(360deg);filter: hue-rotate(360deg);}
+  }
