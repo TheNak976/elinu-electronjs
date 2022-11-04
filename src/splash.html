@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="css/splash.css">
+    <script>
+        const params = new URLSearchParams(window.location.search);
+        window.language = params.get('lang');
+        console.log("current lang is: "+window.language)
+    </script>
+    <title>Tera Elinu</title>
+</head>
+
+<body>
+    <div class="wrapper">
+      <span class="loader"></span>
+        <p id="starting-msg" data-string-label="UI_TEXT_SPLASH_STARTING_MESSAGE">UI_TEXT_SPLASH_STARTING_MESSAGE...</p> 
+      </div>
+    <script src="js/helpers.js"></script>
+    <script src="renderer.js"></script>
+    <script>
+        _TEXT_TRANSLATE(document.getElementById("starting-msg"), 'UI_TEXT_SPLASH_STARTING_MESSAGE')
+    </script>
+</body>
+</html>

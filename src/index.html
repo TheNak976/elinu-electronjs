@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+
+<html lang="english">
+<head>
+    <title>Login</title>
+    <meta property="twitter:card" content="summary_large_image" />
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta property="og:title" content="Login Page" />
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta charset="utf-8" />
+    <meta property="twitter:card" content="summary_large_image" />
+
+    <link
+        rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=Raleway:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap"
+        data-tag="font"
+    />
+    <link
+        rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700;800;900&display=swap"
+        data-tag="font"
+    />
+
+    <link rel="stylesheet" href="./css/style.css" />
+    <style type="text/css">
+        .loginLoader {
+            position: relative;
+            width: 20px;
+            height: 20px;
+            margin-bottom: 0px;
+        }
+
+        .loginLoader:before , .loginLoader:after{
+            content: '';
+            border-radius: 50%;
+            position: absolute;
+            inset: 0;
+            box-shadow: 0 0 10px 3px rgba(0, 0, 0, 0.3) inset;
+        }
+        .loginLoader:after {
+            box-shadow: 0 3px 0 #FF3D00 inset;
+            animation: rotate 2s linear infinite;
+        }
+        span#log-msg {
+            margin-bottom: 15px;
+            margin-top: 15px;
+            transition: .3s all ease;
+        }
+        span#error-msg {
+            transition: .3s all ease;
+        }
+        @keyframes rotate {
+            0% {  transform: rotate(0deg); filter: hue-rotate(0deg);}
+            50% {  transform: rotate(180deg); filter: hue-rotate(180deg);}
+            100% { transform: rotate(360deg);filter: hue-rotate(360deg);}
+        }
+    </style>
+    <script>
+        const params = new URLSearchParams(window.location.search);
+        window.language = params.get('lang');
+        console.log("current lang is: "+window.language)
+    </script>
+</head>
+<body>
+<div>
+    <div class="login-page-container">
+        <div class="login-page-login-page" id="particles-js">
+            <div class="login-page-topleftbtn">
+                <a href="#" class="login-page-navlink" id="minimizeBtn">
+                    <div class="login-sm-btn-box">
+                        <img
+                            id="launcher-minimize"
+                            alt="Frame2443"
+                            src="images/frame2443-hcr9.svg"
+                            class="login-page-minimize"
+                        />
+                    </div>
+                </a>
+                <a href="#" class="login-page-navlink" id="closeBtn">
+                    <div class="login-sm-btn-box">
+                        <img
+                            id="launcher-close"
+                            alt="Frame3444"
+                            src="images/frame3444-u8gq.svg"
+                            class="login-page-close"
+                        />
+                    </div>
+                </a>
+            </div>
+            <div class="login-page-footer"></div>
+            <div class="login-page-leftbox">
+                <img
+                    alt="TeraElinuLogo12617"
+                    src="images/teraelinulogo12617-aktl-200h.png"
+                    class="login-page-tera-elinu-logo1"
+                />
+            </div>
+            <div class="login-page-loginbox">
+                <div class="login-page-login-form">
+              <span class="login-page-login-title">
+                <span>ENTER YOUR CREDENTIALS</span>
+              </span>
+                    <div class="login-page-logincont">
+                        <div class="login-page-inputbox">
+                            <img
+                                alt="inputicon2719"
+                                src="images/inputicon2719-9acm.svg"
+                                class="login-page-inputicon"
+                            />
+                            <input
+                                type="text"
+                                id="username"
+                                name="username"
+                                placeholder="Enter your username"
+                                class="login-page-textinput input input-style"
+                            />
+                        </div>
+                        <div class="login-page-inputbox1">
+                            <img
+                                alt="inputicon2720"
+                                src="images/inputicon2720-azb.svg"
+                                class="login-page-inputicon1"
+                            />
+                            <input
+                                type="text"
+                                id="password"
+                                name="password"
+                                placeholder="Enter your password"
+                                class="input input-style"
+                            />
+                        </div>
+                        <label class="form-control">
+                            <input type="checkbox" name="stayConnected" id="stayConnected"/>
+                            <span id="stayConnectedText" data-string-label="UI_TEXT_LOGIN_STAY_TEXT">UI_TEXT_LOGIN_STAY_TEXT</span>
+                        </label>
+                    </div>
+                    <span class="loginLoader" id="loginLoader"></span>
+                    <span id="log-msg" data-string-label="UI_TEXT_LOGIN_ATTEMPT">Attempt to login...</span>
+                    <span id="error-msg"></span>
+                    <a href="#" class="login-page-navlink" onclick="executeLoginRequest()">
+                        <div id="login-btn" class="login-page-btnplay">
+                            <span class="login-page-text1" id="login" data-string-label="UI_TEXT_LOGIN_BUTTON_LOGIN">LOGIN</span>
+                        </div>
+                    </a>
+                    <div class="login-page-ifnoaccount">
+                        <span class="login-page-text2">
+                          <span>Don’t have an account yet?</span>
+                        </span>
+                        <a href="#" id="signup-txt" class="login-page-sign-up-text">
+                            <span>Sign Up</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="http://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
+<script type="text/javascript" src="./js/particlejs-anim.js"></script>
+<script src="js/helpers.js"></script>
+<script src="loginRenderer.js"></script>
+<script src="renderer.js"></script>
+<script>
+    _TEXT_TRANSLATE(document.getElementById("login"), 'UI_TEXT_LOGIN_BUTTON_LOGIN')
+    _TEXT_TRANSLATE(document.getElementById("stayConnectedText"), 'UI_TEXT_LOGIN_STAY_TEXT')
+</script>
+</body>
+</html>

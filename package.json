@@ -1,0 +1,81 @@
+{
+  "name": "tera-elinu",
+  "productName": "Tera-Elinu",
+  "version": "1.0.0",
+  "description": "Tera Elinu game launcher",
+  "main": "src/app.js",
+  "scripts": {
+    "start": "electron-forge start",
+    "package": "electron-forge package",
+    "make": "electron-forge make",
+    "publish": "electron-forge publish",
+    "lint": "echo \"No linting configured\""
+  },
+  "keywords": [],
+  "author": {
+    "name": "TeraElinu",
+    "email": "elinu@tera-elinu.eu"
+  },
+  "license": "MIT",
+  "config": {
+    "forge": {
+      "packagerConfig": {
+        "asar": {
+          "unpack": "./node_modules/node-notifier/**/*"
+        },
+        "extraResource": [
+          "./teraElinu.json",
+          "./ElinuLauncher.dll"
+        ],
+        "icon": "TeraElinuIcon.ico"
+      },
+      "makers": [
+        {
+          "name": "@electron-forge/maker-squirrel",
+          "config": {
+            "name": "tera-elinu",
+            "loadingGif": "",
+            "iconUrl": "https://tera-elinu.eu/images/TeraElinuIcon.ico",
+            "setupIcon": "TeraElinuLogo.ico"
+          }
+        },
+        {
+          "name": "@electron-forge/maker-zip",
+          "platforms": [
+            "darwin"
+          ]
+        },
+        {
+          "name": "@electron-forge/maker-deb",
+          "config": {}
+        },
+        {
+          "name": "@electron-forge/maker-rpm",
+          "config": {}
+        }
+      ]
+    }
+  },
+  "dependencies": {
+    "archiver": "^5.3.1",
+    "electron-squirrel-startup": "^1.0.0",
+    "electron-store": "^8.1.0",
+    "ffi-napi": "^4.0.3",
+    "load-json-file": "^7.0.1",
+    "node-fetch": "^2.6.7",
+    "node-notifier": "^10.0.1",
+    "path": "^0.12.7",
+    "pretty-byte": "^1.0.1",
+    "rapid-downloader": "^1.2.6",
+    "update-electron-app": "^2.0.1",
+    "xterm": "^5.0.0"
+  },
+  "devDependencies": {
+    "@electron-forge/cli": "^6.0.0-beta.67",
+    "@electron-forge/maker-deb": "^6.0.0-beta.67",
+    "@electron-forge/maker-rpm": "^6.0.0-beta.67",
+    "@electron-forge/maker-squirrel": "^6.0.0-beta.67",
+    "@electron-forge/maker-zip": "^6.0.0-beta.67",
+    "electron": "^18.3.15"
+  }
+}
