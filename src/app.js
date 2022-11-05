@@ -16,6 +16,7 @@ const currentDirectory = basename(process.cwd());
 if (require('electron-squirrel-startup')) {
     app.quit();
 }
+process.env.ELECTRON_IS_DEV = 0;
 
 let MessageListener;
 let gameStr;
