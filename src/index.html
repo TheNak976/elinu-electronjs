@@ -56,6 +56,29 @@
             50% {  transform: rotate(180deg); filter: hue-rotate(180deg);}
             100% { transform: rotate(360deg);filter: hue-rotate(360deg);}
         }
+        .loginLoader{
+            display: none;
+        }
+        .log-msg{
+            display: none;
+        }
+        .error-msg {
+            display: none;
+            color: rgba(255, 255, 255, 0.75);
+            padding: 20px;
+            min-width: 357px;
+            text-align: center;
+            margin-bottom: 20px;
+            border-radius: 10px;
+        }
+        .error{
+            background: #af4646;
+            border: solid 2px #b93d3d;
+        }
+        .success{
+            background: #46af7b;
+            border: solid 2px #46af7b;
+        }
     </style>
     <script>
         const params = new URLSearchParams(window.location.search);
@@ -137,8 +160,8 @@
                         </label>
                     </div>
                     <span class="loginLoader" id="loginLoader"></span>
-                    <span id="log-msg" data-string-label="UI_TEXT_LOGIN_ATTEMPT">Attempt to login...</span>
-                    <span id="error-msg"></span>
+                    <span id="log-msg" class="log-msg" data-string-label="UI_TEXT_LOGIN_ATTEMPT">Attempt to login...</span>
+                    <span id="error-msg" class="error-msg"></span>
                     <a href="#" class="login-page-navlink" onclick="executeLoginRequest()">
                         <div id="login-btn" class="login-page-btnplay">
                             <span class="login-page-text1" id="login" data-string-label="UI_TEXT_LOGIN_BUTTON_LOGIN">LOGIN</span>

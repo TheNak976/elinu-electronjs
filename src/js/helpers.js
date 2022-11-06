@@ -18,3 +18,16 @@ function showNotification(notifTitle, notifBody) {
         icon: "../../src/TeraElinuIcon.png",
     });
 }
+
+function elementSetDisplay(elementNameId, elementDisplay) {
+    document.getElementById(elementNameId).style.display = elementDisplay;
+}
+function elementSetInnerHtml(elementNameId, elementString) {
+    document.getElementById(elementNameId).innerHTML = elementString;
+}
+function elementAddClass(elementNameId, className) {
+    document.getElementById(elementNameId).classList.add(className);
+}
+function elementRemoveClass(elementNameId, className) {
+    document.getElementById(elementNameId).classList.remove(className);
+}

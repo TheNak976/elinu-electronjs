@@ -1,4 +1,4 @@
-const {app, BrowserWindow, ipcMain, dialog} = require('electron');
+const {app, BrowserWindow, ipcMain, dialog, globalShortcut} = require('electron');
 const path = require('path');
 const fs = require("fs");
 const elinu_launcher = require('./launcher');
@@ -10,6 +10,7 @@ const {DownloadWorker, utils} = require("rapid-downloader");
 const formatBytes = require('pretty-byte');
 const { basename } = require("path");
 const currentDirectory = basename(process.cwd());
+const axios = require('axios');
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 // eslint-disable-next-line global-require
@@ -28,12 +29,13 @@ let credentials;
 const localStore = new Store();
 let getUserData;
 let easyDownloader;
-let url = "https://proof.ovh.net/files/100Mb.dat";
+let url = "https://proof.ovh.net/files/10Mb.dat";
 const friendlyFileName = path.posix.basename(url);
 let isPause = false;
 let isResume = false;
 let fileSize;
 let worker;
+let updateAvailable = false;
 //load config json
 global.launcherConfig = (function () {
     if (fs.existsSync(path.join(process.cwd(), 'teraElinu.json'))) {
@@ -95,7 +97,33 @@ const createWindow = () => {
     splash.loadURL(`file://${__dirname}/splash.html?lang=${global.launcherConfig.lang}`);
     splash.center();
 
-    
+    //first if dom ready
+    //then check if userData. Then check if stayConnected is set
+    //if stayConnected then Load mainWindow with userData, connect the user
+    //Else do the basics things(load the login page)
+    splash.webContents.once("dom-ready", () => {
+        let getUserStayConnected = JSON.parse(localStore.get('ifStayConnected'));
+
+        if (getUserData.AuthKey){//if get user data
+            if (getUserStayConnected.stayConnected === true){//if user want to stay connected
+                setTimeout(function () {//directly show the main window
+                    splash.close();
+                    mainW.center();
+                    mainW.webContents.send('users', JSON.parse(localStore.get('users')));
+                    mainW.show();
+                }, 2000);
+                console.log("stayConnected exist");
+            }else{//else show login window
+                setTimeout(function () {
+                    splash.close();
+                    winLogin.center();
+                    winLogin.show();
+                }, 2000);
+            }
+            console.log("userdata exist");
+        }
+        console.log("Splash dom-ready");
+    });
 
     // Create the browser window of login
     winLogin = new BrowserWindow({
@@ -158,8 +186,6 @@ const createWindow = () => {
     mainW.loadURL(`file://${__dirname}/main.html?lang=${global.launcherConfig.lang}`);
     //hide on load
     mainW.hide();
-    // Open the DevTools.
-    splash.webContents.openDevTools();
     mainW.on('closed', () => {
         console.log('User closed the Main window');
         ipcMain.removeAllListeners();
@@ -167,30 +193,11 @@ const createWindow = () => {
     });
 
     //first if dom ready
-    //then check if userData. Then check if stayConnected is set
-    //if stayConnected then Load mainWindow with userData, connect the user
-    //Else do the basics things(load the login page)
-    splash.webContents.once("dom-ready", () => {
-        let getUserStayConnected = JSON.parse(localStore.get('ifStayConnected'));
-        if (getUserData.AuthKey){
-            if (getUserStayConnected.stayConnected === true){
-                setTimeout(function () {
-                    splash.close();
-                    mainW.center();
-                    mainW.webContents.send('users', JSON.parse(localStore.get('users')));
-                    mainW.show();
-                }, 2000);
-                console.log("stayConnected exist");
-            }else{
-                setTimeout(function () {
-                    splash.close();
-                    winLogin.center();
-                    winLogin.show();
-                }, 2000);
-            }
-            console.log("userdata exist");
-        }
-        console.log("dom-ready");
+    mainW.webContents.once("dom-ready", () => {
+        globalShortcut.register('F5', checkForUpdates);
+        globalShortcut.register('CommandOrControl+R', checkForUpdates);
+        checkForUpdates();
+        console.log("mainW dom-ready");
     });
     
     
@@ -231,6 +238,7 @@ const createWindow = () => {
 ipcMain.on("downloadUpdate", (event) => {
     !fs.existsSync(path.join(process.cwd() + "/files/")) && fs.mkdirSync(path.join(process.cwd() + "/files/"), {recursive: true})
 
+    console.log("downloading update")
     // Multi connections
     worker = new DownloadWorker(url, path.join(process.cwd() + `/files/${friendlyFileName}`), {
         maxConnections: 10,
@@ -251,7 +259,10 @@ ipcMain.on("downloadUpdate", (event) => {
 
         });
         
-        worker.on('finishing', () => console.log('Download is finishing'));
+        worker.on('finishing', () => {
+            console.log('Download is finishing');
+            mainW.webContents.send("downloadCompleted")
+        });
         
         worker.on('end', () => console.log('Download is done'));
         
@@ -260,6 +271,35 @@ ipcMain.on("downloadUpdate", (event) => {
     
 
 });
+
+async function checkForUpdates() {
+    try {
+        let response = await axios.get("https://teraelinu.surge.sh/" + 'version.json');
+        let remoteVersion = response.data;
+
+        let localVersion = fs.readFileSync('./version.txt', 'utf-8');
+
+        if(localVersion === remoteVersion.version) {
+
+            console.log("no update")
+            mainW.webContents.send("noUpdate")
+            
+            if("maj client"){
+                //si maj, on fait les maj
+            }
+            
+        }else {
+            console.log("update available")
+            let updateRemoteVersion = fs.createWriteStream('./version.txt', 'utf-8');
+            updateRemoteVersion.write(remoteVersion.version);
+        }
+        
+    } catch (e) {
+        console.error(e);
+    }
+}
+
+
 ipcMain.on("pauseDownload",  (event) => {
     worker.pause();
 });

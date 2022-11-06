@@ -3,6 +3,10 @@ let gameMsg = document.getElementById("gameMsg");
 let gameBtnStr = document.getElementById("launchGameString");
 let gameBtn = document.getElementById("play-game");
 let btnPlay = document.getElementById("btn-play");
+let updateEtaStr = document.querySelector(".main-page-textetat")
+let ringLoadingBox = document.querySelector(".ring-loading-box")
+
+
 
 //gameMsgBox
 gameMsgBox.style.display = "none";
@@ -154,12 +158,20 @@ ipcRenderer.on("updateDownloadProgress", (event, dlPercentage, currentDl, downlo
     elinuFriendlyFileName.innerHTML = friendlyFileName;
 });
 ipcRenderer.on("downloadCompleted", (event) => {
-    alert("Download Completed")
+    ifNoUpdateDisplayThis();
 });
 
+ipcRenderer.on("noUpdate", (event) => {
+//onLoad hide dl stats
+    ifNoUpdateDisplayThis();
+});
+
+
 function downloadUpdates() {
-ipcRenderer.send("downloadUpdate");
-    
+    document.getElementById("no-update").style.display = "none";
+    updateEtaStr.style.display = "flex";
+    ringLoadingBox.style.display = "block";
+    ipcRenderer.send("downloadUpdate");
 }
 function pauseDownload() {
 ipcRenderer.send("pauseDownload");
@@ -167,5 +179,10 @@ ipcRenderer.send("pauseDownload");
 }
 function resumeDownload() {
 ipcRenderer.send("resumeDownload");
-    
+}
+function ifNoUpdateDisplayThis() {
+    ringLoadingBox.style.display = "none";
+    updateEtaStr.style.display = "none";
+    document.getElementById("no-update").style.display = "block";
+    document.getElementById("no-update").innerHTML = "No update, you can launchh the game";
 }

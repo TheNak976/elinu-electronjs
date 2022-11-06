@@ -1,10 +1,22 @@
 ﻿
 //login resp on success
 ipcRenderer.on("loginSuccess", (event, successMsg) => {
-    document.getElementById("log-msg").innerHTML = successMsg;
+    
+    //on success display success msg
+    elementSetDisplay("error-msg","block");
+    elementSetInnerHtml("error-msg", successMsg)
+    elementAddClass("error-msg","success")
+
+    
     setTimeout(function () {
+        //after 3s remove some class
+        elementRemoveClass("error-msg","error")
+        elementRemoveClass("error-msg","success")
+
+        //after connected hide elements
         elementSetDisplay("loginLoader","none");
         elementSetDisplay("log-msg","none");
+        elementSetDisplay("error-msg","none");
     }, 3000);
 });
 
@@ -18,7 +30,8 @@ ipcRenderer.on("authError", (event, msg) => {
 
 function setLoginError(msg) {
     elementSetDisplay("error-msg","block");
-    return (document.getElementById("error-msg").innerHTML = msg);
+    elementAddClass("error-msg","error")
+    return (elementSetInnerHtml("error-msg", msg));
 }
 
 //login request
@@ -34,9 +47,4 @@ function executeLoginRequest() {
     elementSetDisplay("loginLoader","block");
     elementSetDisplay("log-msg","block");
     elementSetDisplay("error-msg","none");
-}
-
-//set display style to this element. ex: {display:block) 
-function elementSetDisplay(elementNameId, elementDisplay) {
-    document.getElementById(elementNameId).style.display = elementDisplay;
 }
