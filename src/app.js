@@ -2,11 +2,12 @@ const {app, BrowserWindow, ipcMain, dialog, globalShortcut} = require('electron'
 const path = require('path');
 const fs = require("fs");
 const elinu_launcher = require('./launcher');
-const authServices = require('./services/authServices');
 const Store = require('electron-store');
 const notifier = require('node-notifier');
 const langStrings = require('../langStrings.json');
 const {DownloadWorker, utils} = require("rapid-downloader");
+const downloader = require('./downloader');
+const login = require('./login');
 const formatBytes = require('pretty-byte');
 const { basename } = require("path");
 const currentDirectory = basename(process.cwd());
@@ -21,22 +22,19 @@ if (require('electron-squirrel-startup')) {
 process.env.ELECTRON_IS_DEV = 0;
 
 let MessageListener;
-let gameStr;
 let winLogin;
 let splash;
-let eConsole;
 let mainW;
-let credentials;
+
 const localStore = new Store();
 let getUserData;
-let easyDownloader;
+
 let url = "https://proof.ovh.net/files/10Mb.dat";
 const friendlyFileName = path.posix.basename(url);
-let isPause = false;
-let isResume = false;
-let fileSize;
-let worker;
-let updateAvailable = false;
+
+
+
+
 //load config json
 global.launcherConfig = (function () {
     if (fs.existsSync(path.join(process.cwd(), 'teraElinu.json'))) {
@@ -72,8 +70,6 @@ const createWindow = () => {
         }
     }catch (e){
     }
-    
-
     
     
     // Load the splash screen on first
@@ -207,9 +203,6 @@ const createWindow = () => {
         console.log("mainW dom-ready");
     });
     
-    
-    
-    
     MessageListener = elinu_launcher.registerMessageListener((message, code) => {
         switch (message) {
             case "ticket":{
@@ -247,36 +240,8 @@ ipcMain.on("downloadUpdate", (event) => {
 
     console.log("downloading update")
     // Multi connections
-    worker = new DownloadWorker(url, path.join(process.cwd() + `/files/${friendlyFileName}`), {
-        maxConnections: 10,
-        forceMultipleConnections : true,
-    });
-    worker.on('ready', () => {
-        
-        worker.on('start', () => console.log('started'))
-        
-        worker.on('progress', (progress) => {
-            let timeRemaining = (progress.bytesPerSecond <= 0 ? "infinite" : secondsToTime((progress.totalBytes - progress.downloadedBytes) / progress.bytesPerSecond));
-            let currentDl = formatBytes(progress.downloadedBytes) === "NaN undefined" ? 0 : formatBytes(progress.downloadedBytes);
-            let downloadSpeed = utils.dynamicSpeedUnitDisplay(progress.bytesPerSecond, 2);
-            let dlPercentage = (Math.trunc(progress.completedPercent * 100) / 100).toFixed(2);
-            let totalDownloaded = formatBytes(progress.totalBytes);
-            
-            mainW.webContents.send("updateDownloadProgress", dlPercentage, currentDl, downloadSpeed, timeRemaining, totalDownloaded, friendlyFileName);
-
-        });
-        
-        worker.on('finishing', () => {
-            console.log('Download is finishing');
-            mainW.webContents.send("downloadCompleted")
-        });
-        
-        worker.on('end', () => console.log('Download is done'));
-        
-        worker.start();
-    });
+    downloader.downloadProcess(mainW, url, friendlyFileName)
     
-
 });
 
 async function checkForUpdates() {
@@ -306,92 +271,14 @@ async function checkForUpdates() {
     }
 }
 
-
-ipcMain.on("pauseDownload",  (event) => {
-    worker.pause();
-});
-//__________________
-
-ipcMain.on("resumeDownload",  (event) => {
-    worker.resume();
-});
-
-function secondsToTime(s) {
-    let secs = s % 60;
-    s = (s - secs) / 60;
-    let mins = s % 60;
-    let hrs = (s - mins) / 60;
-
-    let str = "";
-
-    if(hrs > 0)
-        str += hrs + "h, ";
-
-    if(mins > 0)
-        str += mins + "m, ";
-
-    return str + Math.floor(secs) + 's';
-}
-//winLogin.webContents.send('checkRememberMe', successMsg);
-
 ipcMain.on('loginRequest', async (event, username, password, stayConnectedValue) => {
-    try {
-        //call api
-        credentials = {
-            userID: username,
-            password: password,
-        };
-        let stayConnectedResponse = {
-            stayConnected: stayConnectedValue
-        }
-        let msg = ""
-        try {
-            let response = await authServices.login(credentials); //from http request in authServices.js
-            if (response) {
-                msg = response.ReturnCode;
-                if (response.msg === "success") {
-                    //we store all our user data here in localstorage session
-                    localStore.set('users', JSON.stringify(response));
-                    localStore.set('ifStayConnected', JSON.stringify(stayConnectedResponse));
-                    console.log(stayConnectedResponse);
-                    //localStore.set('userStayConnected', stayConnectedResponse);
-                    //send our user data to MainWindow render
-                    mainW.webContents.send('users', JSON.parse(localStore.get('users')));
-                    mainW.webContents.send('stayCo', JSON.parse(localStore.get('ifStayConnected')));
-                    
-                    let successMsg = "Successfully connected..."
-                    winLogin.webContents.send('loginSuccess', successMsg);
-                    
-                    //redirect if success
-                    setTimeout(function () {
-                        winLogin.hide();
-                        mainW.center();
-                        mainW.show();
-                    }, 1000);
-
-                } else {
-                    if(msg === 2){
-                        event.reply('authError', "Enter Name and Password");
-                    }
-                    if(msg === 50000){
-                        event.reply('authError', "Your credentials is incorrect. Please try again");
-                    }                    
-                }
-            }
-        } catch (error) {
-            console.error("err " + error);
-        }
-
-
-    } catch (err) {
-        event.reply('loginResponse', err);
-    }
+    await login.doLogin(mainW, winLogin, event, username, password, stayConnectedValue);
 });
-
 
 ipcMain.on('userCheck', async (event) => {
     mainW.webContents.send('users', JSON.parse(localStore.get('users')));
 });
+
 ipcMain.on('logout', async (event) => {
     let stayConnectedSend = {
         stayConnected: false
@@ -402,39 +289,6 @@ ipcMain.on('logout', async (event) => {
         winLogin.center();
         winLogin.show();
     }, 1000);
-});
-
-ipcMain.on('launchGame', async (event) => {
-    try {
-
-        // parse json
-        const userData = JSON.parse(localStore.get('users'));
-
-        // access elements
-        let gameString =
-            "{" +
-            "\"last_connected_server_id\":" + userData.last_connected_server + "," +//required
-            "\"chars_per_server\":\"" + userData.CharacterCount + "\"," +//required
-            //"\"account_bits\":\"0x00000000\"," +
-            "\"ticket\":\"" + userData.AuthKey + "\"," +//required
-            //"\"result-message\":\"OK\"," +
-            "\"result-code\":200," + //required
-            //"\"user_permission\":0," +
-            "\"game_account_name\":\"TERA\"," + //required
-            //"\"access_level\":" + acclvl + "," +
-            "\"master_account_name\":\"" + userData.UserNo + "\"" +//required
-            "}";
-
-        //launch game
-        elinu_launcher.launchGameSync(gameString, launcherConfig.lang, (err) => {
-            if (err) throw err;
-            event.reply('exitGame');
-        });
-
-
-    } catch (err) {
-        //event.reply('launchGameRes', err);
-    }
 });
 
 ipcMain.on('langSelected', (event, lang) => {

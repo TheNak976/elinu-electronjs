@@ -1,46 +1,63 @@
-﻿const http = require('http');
+﻿const {ipcMain, dialog, globalShortcut} = require('electron');
 const fs = require('fs');
 const path = require('path');
+const formatBytes = require('pretty-byte');
+const {DownloadWorker, utils} = require("rapid-downloader");
 
-let lastDownloadedSize = 0;
+let worker;
 
-function getRemoteFile(file, url) {
-    let localFile = fs.createWriteStream(path.join(process.cwd(), file));
-    const request = http.get(url, function(response) {
-        const len = parseInt(response.headers['content-length'], 10);
-        let cur = 0;
-        const total = len / 1048576; //1048576 - bytes in 1 Megabyte
+function downloadProcess(currentWindow, url, fileName) {
+    worker = new DownloadWorker(url, path.join(process.cwd() + `/files/${fileName}`), {
+        maxConnections: 10,
+        forceMultipleConnections : true,
+    });
+    worker.on('ready', () => {
 
-        response.on('data', function(chunk) {
-            cur += chunk.length;
-            showProgress(file, cur, len, total);
+        worker.on('start', () => console.log('started'))
+
+        worker.on('progress', (progress) => {
+            let timeRemaining = (progress.bytesPerSecond <= 0 ? "infinite" : secondsToTime((progress.totalBytes - progress.downloadedBytes) / progress.bytesPerSecond));
+            let currentDl = formatBytes(progress.downloadedBytes) === "NaN undefined" ? 0 : formatBytes(progress.downloadedBytes);
+            let downloadSpeed = utils.dynamicSpeedUnitDisplay(progress.bytesPerSecond, 2);
+            let dlPercentage = (Math.trunc(progress.completedPercent * 100) / 100).toFixed(2);
+            let totalDownloaded = formatBytes(progress.totalBytes);
+
+            currentWindow.webContents.send("updateDownloadProgress", dlPercentage, currentDl, downloadSpeed, timeRemaining, totalDownloaded, fileName);
+
         });
 
-        response.on('end', function() {
-            console.log("Download complete");
+        worker.on('finishing', () => {
+            console.log('Download is finishing');
+            currentWindow.webContents.send("downloadCompleted")
         });
 
-        response.pipe(localFile);
+        worker.on('end', () => console.log('Download is done'));
+
+        worker.start();
     });
 }
+ipcMain.on("pauseDownload",  (event) => {
+    worker.pause();
+});
+//__________________
 
-function showProgress(file, cur, len, total) {
+ipcMain.on("resumeDownload",  (event) => {
+    worker.resume();
+});
+function secondsToTime(s) {
+    let secs = s % 60;
+    s = (s - secs) / 60;
+    let mins = s % 60;
+    let hrs = (s - mins) / 60;
 
-    console.log("Downloading " + file + " - " + (100.0 * cur / len).toFixed(2)
-        + "% (" + (cur / 1048576).toFixed(2) + " MB) of total size: "
-        + total.toFixed(2) + " MB" );
+    let str = "";
 
+    if(hrs > 0)
+        str += hrs + "h, ";
+
+    if(mins > 0)
+        str += mins + "m, ";
+
+    return str + Math.floor(secs) + 's';
 }
-
-function formatBytes(bytes, decimals = 2) {
-    if (bytes <= 0) return '0 Bytes';
-
-    const k = 1024;
-    const dm = decimals < 0 ? 0 : decimals;
-    const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
-
-    const i = Math.floor(Math.log(bytes) / Math.log(k));
-
-    return parseFloat(bytes / Math.pow(k, i)).toFixed(dm) + ' ' + sizes[i];
-}
-module.exports = { formatBytes};
+module.exports = {downloadProcess };

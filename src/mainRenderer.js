@@ -14,7 +14,7 @@ gameMsgBox.style.opacity = "0";
 gameMsgBox.style.transform = "scale(0)";
 
 function preLaunchGame() {
-    //ipcRenderer.send("launchGame");
+    ipcRenderer.send("launchGame");
     gameMsgBox.style.display = "flex";
     
     //gameMsgText and gameMsgBox

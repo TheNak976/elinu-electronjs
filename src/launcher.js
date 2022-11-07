@@ -1,8 +1,12 @@
 const ffi = require('ffi-napi');
 const SLS_URL = "https://tera-elinu.eu/server/serverlist";
-const {app, dialog, BrowserWindow} = require('electron');
+const {app, BrowserWindow, ipcMain, dialog, globalShortcut} = require('electron');
+const Store = require('electron-store');
 
+
+const localStore = new Store();
 let teraLauncher;
+
 const loadElinuLib = () => {
     try {
         teraLauncher = ffi.Library('./ElinuLauncher.dll', {
@@ -62,6 +66,41 @@ function sendMessageToClient(msg, content) {
     }
     
 }
+
+
+ipcMain.on('launchGame', async (event) => {
+    try {
+
+        // parse json
+        const userData = JSON.parse(localStore.get('users'));
+
+        // access elements
+        let gameString =
+            "{" +
+            "\"last_connected_server_id\":" + userData.last_connected_server + "," +//required
+            "\"chars_per_server\":\"" + userData.CharacterCount + "\"," +//required
+            //"\"account_bits\":\"0x00000000\"," +
+            "\"ticket\":\"" + userData.AuthKey + "\"," +//required
+            //"\"result-message\":\"OK\"," +
+            "\"result-code\":200," + //required
+            //"\"user_permission\":0," +
+            "\"game_account_name\":\"TERA\"," + //required
+            //"\"access_level\":" + acclvl + "," +
+            "\"master_account_name\":\"" + userData.UserNo + "\"" +//required
+            "}";
+
+        //launch game
+        launchGameSync(gameString, global.launcherConfig.lang, (err) => {
+            if (err) throw err;
+            event.reply('exitGame');
+        });
+
+
+    } catch (err) {
+        //event.reply('launchGameRes', err);
+    }
+});
+
 
 function onLoadElinuLauncher() {
     console.log("launcher js loaded...")
