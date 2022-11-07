@@ -60,6 +60,7 @@
     "path": "^0.12.7",
     "pretty-byte": "^1.0.1",
     "rapid-downloader": "^1.2.6",
+    "tcp-ping-port": "^1.0.1",
     "xterm": "^5.0.0"
   },
   "devDependencies": {

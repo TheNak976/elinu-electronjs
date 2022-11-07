@@ -11,6 +11,7 @@ const formatBytes = require('pretty-byte');
 const { basename } = require("path");
 const currentDirectory = basename(process.cwd());
 const axios = require('axios');
+const { tcpPingPort } = require("tcp-ping-port")
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 // eslint-disable-next-line global-require
@@ -194,6 +195,12 @@ const createWindow = () => {
 
     //first if dom ready
     mainW.webContents.once("dom-ready", () => {
+
+        tcpPingPort("94.23.17.161", 7801).then(online => {
+            mainW.webContents.send("serverStatus", online)
+        })
+        
+        //we check for updates
         globalShortcut.register('F5', checkForUpdates);
         globalShortcut.register('CommandOrControl+R', checkForUpdates);
         checkForUpdates();

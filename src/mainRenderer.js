@@ -20,9 +20,7 @@ function preLaunchGame() {
     //gameMsgText and gameMsgBox
     let gameMsgText = document.querySelector(".gameMsgText");
     gameMsgText.classList.add("green");
-    btnPlay.classList.add("disableBtnPlay");
-    gameBtnStr.classList.add("disableBtnPayText");
-    gameBtn.classList.add("disableClick");
+    disableBtnPlay();
     gameMsg.innerHTML = "Game Launching...";
     anime({
         targets: gameMsgBox,
@@ -37,7 +35,6 @@ function preLaunchGame() {
     
     //gameBtnLaunch
     gameBtnStr.innerHTML = "Game Launching...";
-    
     gameMsgText.classList.add("green");
     consoleWrite("Game Launching...");
 }
@@ -73,6 +70,21 @@ ipcRenderer.on("gameEventMessage", (event, message, code) => {
     }
     consoleWrite(code);
 });
+
+
+function disableBtnPlay() {
+    //gameBtnStr.innerHTML = "Game Launching...";
+    btnPlay.classList.add("disableBtnPlay");
+    gameBtnStr.classList.add("disableBtnPayText");
+    gameBtn.classList.add("disableClick");
+}
+function enableBtnPlay() {
+    //gameBtnStr.innerHTML = "LAUNCH GAME";
+    gameBtn.classList.remove("disableClick");
+    btnPlay.classList.remove("disableBtnPlay");
+    gameBtnStr.classList.remove("disableBtnPayText");
+}
+
 //client GameEnd message
 ipcRenderer.on("gameEndMessage", (event, message, code) => {
     if (message === "endPopup") {
@@ -81,9 +93,7 @@ ipcRenderer.on("gameEndMessage", (event, message, code) => {
         if (terminationCode === 0) {
             gameMsg.innerHTML = "Game Client Closed";
             gameBtnStr.innerHTML = "LAUNCH GAME";
-            gameBtn.classList.remove("disableClick");
-            btnPlay.classList.remove("disableBtnPlay");
-            gameBtnStr.classList.remove("disableBtnPayText");
+            enableBtnPlay();
             setTimeout(function () {
                 anime({
                     targets: gameMsgBox,
@@ -158,17 +168,37 @@ ipcRenderer.on("updateDownloadProgress", (event, dlPercentage, currentDl, downlo
     elinuFriendlyFileName.innerHTML = friendlyFileName;
 });
 ipcRenderer.on("downloadCompleted", (event) => {
+    enableBtnPlay();
+    gameBtnStr.innerHTML = "LAUNCH GAME";
     ifNoUpdateDisplayThis();
 });
 
 ipcRenderer.on("noUpdate", (event) => {
-//onLoad hide dl stats
+    //onLoad hide dl stats
     ifNoUpdateDisplayThis();
+});
+
+ipcRenderer.on("serverStatus", (event, status) => {
+    let serverStatsText = document.querySelector(".serverStatsText")
+    
+    if (status.online === true){
+        serverStatsText.classList.remove("red");
+        serverStatsText.classList.add("green");
+        serverStatsText.innerHTML = "Server is Online";
+
+    }else{
+        serverStatsText.classList.remove("green");
+        serverStatsText.classList.add("red");
+        serverStatsText.innerHTML = "Server is Offline";
+
+    }
 });
 
 
 function downloadUpdates() {
-    document.getElementById("no-update").style.display = "none";
+    elementSetDisplay("no-update","none");
+    disableBtnPlay();
+    gameBtnStr.innerHTML = "Updates in progress...";
     updateEtaStr.style.display = "flex";
     ringLoadingBox.style.display = "block";
     ipcRenderer.send("downloadUpdate");
@@ -183,6 +213,6 @@ ipcRenderer.send("resumeDownload");
 function ifNoUpdateDisplayThis() {
     ringLoadingBox.style.display = "none";
     updateEtaStr.style.display = "none";
-    document.getElementById("no-update").style.display = "block";
-    document.getElementById("no-update").innerHTML = "No update, you can launchh the game";
+    elementSetDisplay("no-update","block");
+    elementSetInnerHtml("no-update","You can launch the game");
 }

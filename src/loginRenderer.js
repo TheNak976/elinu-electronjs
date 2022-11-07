@@ -4,14 +4,14 @@ ipcRenderer.on("loginSuccess", (event, successMsg) => {
     
     //on success display success msg
     elementSetDisplay("error-msg","block");
-    elementSetInnerHtml("error-msg", successMsg)
-    elementAddClass("error-msg","success")
+    elementSetInnerHtml("error-msg", successMsg);
+    elementAddClass("error-msg","success");
 
     
     setTimeout(function () {
         //after 3s remove some class
-        elementRemoveClass("error-msg","error")
-        elementRemoveClass("error-msg","success")
+        elementRemoveClass("error-msg","error");
+        elementRemoveClass("error-msg","success");
 
         //after connected hide elements
         elementSetDisplay("loginLoader","none");
@@ -30,7 +30,7 @@ ipcRenderer.on("authError", (event, msg) => {
 
 function setLoginError(msg) {
     elementSetDisplay("error-msg","block");
-    elementAddClass("error-msg","error")
+    elementAddClass("error-msg","error");
     return (elementSetInnerHtml("error-msg", msg));
 }
 

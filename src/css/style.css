@@ -1236,7 +1236,6 @@ color: rgba(247, 183, 0, 1)
   color: rgba(255, 106, 106, 0.86);
 }
 .serverStatsText {
-  color: var(--dl-color-gray-900);
   height: auto;
   font-size: 11px;
   align-self: auto;
@@ -1376,7 +1375,7 @@ color: rgba(247, 183, 0, 1)
   list-style-position: inside;
 }
 .selectedlangimg {
-  width: 24;
+  width: 24px;
   object-fit: cover;
 }
 .main-page-thq-dropdown {
@@ -1446,6 +1445,7 @@ color: rgba(247, 183, 0, 1)
   margin-bottom: auto;
 }
 .elinu-console-console-modal-overlay {
+  -webkit-app-region: no-drag;
   flex: 0 0 auto;
   width: 100%;
   height: 100%;
@@ -1458,6 +1458,7 @@ color: rgba(247, 183, 0, 1)
   top: 0;
 }
 .consoleFrameBox{
+  -webkit-app-region: no-drag;
   height: 465px;
   display: flex;
   padding: 13px 15px;
@@ -1469,6 +1470,7 @@ color: rgba(247, 183, 0, 1)
   left: 323px;
 }
 .elinu-console-console-frame {
+  -webkit-app-region: no-drag;
   width: 554px;
   height: 465px;
   display: flex;
