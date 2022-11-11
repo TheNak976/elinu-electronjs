@@ -11,9 +11,6 @@ let credentials;
 const localStore = new Store();
 
 async function doLogin(mainW, winLogin, event, username, password, stayConnectedValue ) {
-    
-    console.log(global.launcherConfig)
-    
     try {
         //call api
         credentials = {

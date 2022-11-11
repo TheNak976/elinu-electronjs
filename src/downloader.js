@@ -3,13 +3,32 @@ const fs = require('fs');
 const path = require('path');
 const formatBytes = require('pretty-byte');
 const {DownloadWorker, utils} = require("rapid-downloader");
+const axios = require('axios');
+const DecompressZip = require('decompress-zip');
+
+
 
 let worker;
+let url ;
+let fileName;
 
-function downloadProcess(currentWindow, url, fileName) {
-    worker = new DownloadWorker(url, path.join(process.cwd() + `/files/${fileName}`), {
+async function checkRemoteUpdate() {
+    try {
+        let response = await axios.get("https://teraelinu.surge.sh/" + 'version.json');
+        let remoteVersion = response.data;
+        url = remoteVersion.url;
+        fileName = path.posix.basename(url)
+    } catch (e) {
+        console.error(e);
+    }
+}
+checkRemoteUpdate();
+let pathFileName = path.join(process.cwd() + `/files/${fileName}`);
+function downloadProcess(currentWindow) {
+
+    worker = new DownloadWorker(url, pathFileName, {
         maxConnections: 10,
-        forceMultipleConnections : true,
+        forceMultipleConnections : false,
     });
     worker.on('ready', () => {
 
@@ -31,11 +50,48 @@ function downloadProcess(currentWindow, url, fileName) {
             currentWindow.webContents.send("downloadCompleted")
         });
 
-        worker.on('end', () => console.log('Download is done'));
+        worker.on('end', () => {
+            console.log('Download is done');
+            extractUpdatesFiles(currentWindow);
+        });
 
         worker.start();
     });
 }
+
+const extractUpdatesFiles = async (win) => {
+    
+    let unZipper = new DecompressZip(pathFileName)
+    
+    unZipper.on('progress', function (fileIndex, fileCount) {
+
+        let currentFiles = fileIndex + 1;
+        
+        console.log('Extracted file ' + (currentFiles) + ' of ' + fileCount);
+
+        win.webContents.send("extractingStart", currentFiles, fileCount)
+    });
+    
+    unZipper.on('error', function (err) {
+        console.log('Caught an error');
+    });
+
+    unZipper.on('extract', function (log) {
+        console.log('Finished extracting');
+        win.webContents.send("extractingDone")
+        try {
+            fs.unlinkSync(pathFileName);
+            //file removed
+        } catch(err) {
+            console.error(err)
+        }
+    });
+    unZipper.extract({
+        path: path.join(process.cwd() + `/files/`)//destination
+    });
+
+}
+
 ipcMain.on("pauseDownload",  (event) => {
     worker.pause();
 });

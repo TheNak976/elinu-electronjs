@@ -222,9 +222,13 @@ body {
   justify-content: flex-end;
   background-image: url("../images/news2.jpg");
 }
+
 .news-box:hover {
+  z-index: 90;
   filter: brightness(1.2);
+  box-shadow: 0 0 40px 5px rgb(0 0 0 / 42%);
 }
+
 .first-news {
   margin-right: 10px;
   background-image: url("../images/news1.jpg");

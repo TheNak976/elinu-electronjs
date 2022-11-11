@@ -5,10 +5,8 @@ const elinu_launcher = require('./launcher');
 const Store = require('electron-store');
 const notifier = require('node-notifier');
 const langStrings = require('../langStrings.json');
-const {DownloadWorker, utils} = require("rapid-downloader");
 const downloader = require('./downloader');
 const login = require('./login');
-const formatBytes = require('pretty-byte');
 const { basename } = require("path");
 const currentDirectory = basename(process.cwd());
 const axios = require('axios');
@@ -29,8 +27,7 @@ let mainW;
 const localStore = new Store();
 let getUserData;
 
-let url = "https://proof.ovh.net/files/10Mb.dat";
-const friendlyFileName = path.posix.basename(url);
+
 
 
 
@@ -240,7 +237,7 @@ ipcMain.on("downloadUpdate", (event) => {
 
     console.log("downloading update")
     // Multi connections
-    downloader.downloadProcess(mainW, url, friendlyFileName)
+    downloader.downloadProcess(mainW)
     
 });
 
@@ -258,6 +255,7 @@ async function checkForUpdates() {
             
             if("maj client"){
                 //si maj, on fait les maj
+                //mainW.webContents.send("clientUpdateAvailable")
             }
             
         }else {

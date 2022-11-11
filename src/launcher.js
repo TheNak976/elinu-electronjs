@@ -106,4 +106,4 @@ function onLoadElinuLauncher() {
     console.log("launcher js loaded...")
 }
 
-module.exports = {onLoadElinuLauncher, launchGameSync, registerMessageListener, sendMessageToClient};
+module.exports = {onLoadElinuLauncher, registerMessageListener, sendMessageToClient};

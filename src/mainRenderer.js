@@ -8,7 +8,7 @@ let ringLoadingBox = document.querySelector(".ring-loading-box")
 
 
 
-//gameMsgBox
+//gameMsgBox initial state
 gameMsgBox.style.display = "none";
 gameMsgBox.style.opacity = "0";
 gameMsgBox.style.transform = "scale(0)";
@@ -88,51 +88,65 @@ function enableBtnPlay() {
 //client GameEnd message
 ipcRenderer.on("gameEndMessage", (event, message, code) => {
     if (message === "endPopup") {
+        
         let terminationCode = code & 0xffff;
         if (terminationCode === 7) return;
         if (terminationCode === 0) {
             gameMsg.innerHTML = "Game Client Closed";
-            gameBtnStr.innerHTML = "LAUNCH GAME";
-            enableBtnPlay();
-            setTimeout(function () {
-                anime({
-                    targets: gameMsgBox,
-                    opacity:0,
-                    duration: 350,
-                    scale: 0,
-                    easing: "easeOutQuad",
-                    complete: function(anim) {
-                        gameMsgBox.style.display = "none";
-                    }
-                });
-            }, 5000);
-            consoleWrite("Game Client Closed");
+            consoleWrite("You have left the game, see you soon!");
+            showLaunchBtn();
+        }
+        if (terminationCode === 65535) {
+            gameMsg.innerHTML = "Game Client Crashed! Look at your console";
+            consoleWrite("You have voluntarily closed the game!");
+            showLaunchBtn();
         }
         if (terminationCode === 6) {
             gameMsg.innerHTML = "Game Client Crashed! Look at your console";
             consoleWrite("Oupss, there is a Abnormal Problem with your DataCenterFile!");
+            showLaunchBtn();
         }
         if (terminationCode === 10) {
             gameMsg.innerHTML = "Game Client Crashed! Look at your console";
             consoleWrite("There is a Problem with your Language Settings!");
+            showLaunchBtn();
         }
         if (terminationCode === 131347) {
             gameMsg.innerHTML = "Game Client Crashed! Look at your console";
             consoleWrite("There is a Problem with your GameString Settings!");
+            showLaunchBtn();
         }
         if (terminationCode === 196881) {
             gameMsg.innerHTML = "ServerList Problem ?!? SlsUrl Problem";
             consoleWrite("There is a Problem with your Serverlist Settings!");
+            showLaunchBtn();
         }
         if (terminationCode === 26476817) {
             gameMsg.innerHTML = "ServerList Problem! File not found!";
             consoleWrite("ServerList Problem! File not found!");
+            showLaunchBtn();
         }
-        consoleWrite(terminationCode);
-        
+        consoleWrite(`Game Client Closed with code: ${terminationCode}`);
     }
 });
 
+
+function showLaunchBtn() {
+    enableBtnPlay();
+    gameBtnStr.innerHTML = "LAUNCH GAME";
+    setTimeout(function () {
+        anime({
+            targets: gameMsgBox,
+            opacity:0,
+            duration: 350,
+            scale: 0,
+            easing: "easeOutQuad",
+            complete: function(anim) {
+                gameMsgBox.style.display = "none";
+            }
+        });
+    }, 5000);
+}
 
 //reCheck userData
 ipcRenderer.send("userCheck");
@@ -168,9 +182,24 @@ ipcRenderer.on("updateDownloadProgress", (event, dlPercentage, currentDl, downlo
     elinuFriendlyFileName.innerHTML = friendlyFileName;
 });
 ipcRenderer.on("downloadCompleted", (event) => {
-    enableBtnPlay();
-    gameBtnStr.innerHTML = "LAUNCH GAME";
-    ifNoUpdateDisplayThis();
+    elementSetInnerHtml("no-update",`Extracting file on progress...`);
+});
+
+ipcRenderer.on("extractingStart", (event, currentFiles, fileCount) =>{
+
+    ringLoadingBox.style.display = "none";
+    updateEtaStr.style.display = "none";
+    elementSetDisplay("no-update","block");
+    
+    elementSetInnerHtml("no-update",`Extracting file ${currentFiles} of ${fileCount}...`);
+    
+});
+ipcRenderer.on("extractingDone", (event) =>{
+    setTimeout(function () {
+        enableBtnPlay();
+        gameBtnStr.innerHTML = "LAUNCH GAME";
+        ifNoUpdateDisplayThis();
+    }, 3000);
 });
 
 ipcRenderer.on("noUpdate", (event) => {
@@ -179,7 +208,7 @@ ipcRenderer.on("noUpdate", (event) => {
 });
 
 ipcRenderer.on("serverStatus", (event, status) => {
-    let serverStatsText = document.querySelector(".serverStatsText")
+    let serverStatsText = document.querySelector(".serverStatsText");
     
     if (status.online === true){
         serverStatsText.classList.remove("red");
