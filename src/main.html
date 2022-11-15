@@ -52,7 +52,7 @@
                     </div>
                 </div>
                 <div class="main-page-topleftbtn">
-                    <div class="main-page-thq-dropdown" data-thq="thq-dropdown">
+                    <div class="main-page-thq-dropdown" id="switchLang" data-thq="thq-dropdown">
                         <div class="DropdownToggle" data-thq="thq-dropdown-toggle">
                             <div>
                                 <img alt="image" class="selectedlangimg" id="selectedLangImg" loading="lazy" src="images/fr.png" width="24" height="24" />
@@ -139,23 +139,23 @@
                 </div>
                 <div class="main-page-patchbox">
                     <div class="main-page-jauge-box" id="jauge-box">
-                        <div class="Jaugeprogress" id="jaugeprogress"></div>
+                        <div class="progressbar" id="progressbar"></div>
                     </div>
                     <div class="no-update" id="no-update"></div>
                     <div class="main-page-textetat">
                         
                         <div class="main-page-client1">
                             <span class="main-page-text18">
-                                <span>Downloading <span id="fileName">Hozgut.rar: </span> </span>
+                                <span>Downloading <span id="fileName">...</span> </span>
                             </span>
                             <span class="main-page-client-dl" id="client-dl">
-                                <span id="currentDl">38 Gb</span>/<span id="totalDownloaded">53 Gb</span>
+                                <span id="currentDl"></span><span id="totalDownloaded"></span>
                             </span>
                         </div>
                         <div class="main-page-speedbox">
                             <span class="main-page-text21"><span>Speed:</span></span>
                             <span class="main-page-dl-speed" id="dl-speed">
-                                <span id="downloadSpeed">6.43</span>
+                                <span id="downloadSpeed">...</span>
                             </span>
                         </div>
                         <div class="main-page-time">
@@ -163,7 +163,7 @@
                                 <span>ETA:</span>
                             </span>
                             <span class="main-page-dl-time" id="dl-time">
-                                <span id="timeRemaining">3 h 5 min</span>
+                                <span id="timeRemaining">...</span>
                             </span>
                         </div>
                     </div>

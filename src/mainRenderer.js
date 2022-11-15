@@ -7,11 +7,29 @@ let updateEtaStr = document.querySelector(".main-page-textetat")
 let ringLoadingBox = document.querySelector(".ring-loading-box")
 
 
+//progressGauge initial state
+ringLoadingBox.style.display = "none";
+updateEtaStr.style.display = "none";
+document.getElementById("progressbar").style.width = 100 + "%";
+elementSetDisplay("no-update","block");
+elementSetInnerHtml("no-update","You can launch the game");
 
 //gameMsgBox initial state
 gameMsgBox.style.display = "none";
 gameMsgBox.style.opacity = "0";
 gameMsgBox.style.transform = "scale(0)";
+
+let onUpdate =  0;
+
+//lang stuff
+if(document.getElementsByClassName('langSelected')){
+    for(let el of document.getElementsByClassName('langSelected')) {
+        el.addEventListener('click', selectLanguage);
+    }
+}
+function selectLanguage(event) {
+    ipcRenderer.send('langSelected', this.dataset.elinulang);
+}
 
 function preLaunchGame() {
     ipcRenderer.send("launchGame");
@@ -39,6 +57,10 @@ function preLaunchGame() {
     consoleWrite("Game Launching...");
 }
 
+ipcRenderer.on("gameCannotLaunch", (event, message, code) => {
+    console.log(`gameCannotLaunch: ${message}|${code}`)
+    showLaunchBtn();
+});
 
 function doLogout(){
     ipcRenderer.send("logout");
@@ -87,6 +109,7 @@ function enableBtnPlay() {
 
 //client GameEnd message
 ipcRenderer.on("gameEndMessage", (event, message, code) => {
+
     if (message === "endPopup") {
         
         let terminationCode = code & 0xffff;
@@ -165,30 +188,33 @@ ipcRenderer.on("stayCo", (event, userStayConnected) => {
 });
 
 ipcRenderer.on("updateDownloadProgress", (event, dlPercentage, currentDl, downloadSpeed, timeRemaining, totalDownloaded, friendlyFileName ) => {
-    
     let elinuCurrentDl = document.getElementById("currentDl");
     let elinuDownloadSpeed = document.getElementById("downloadSpeed");
     let elinuTimeRemaining = document.getElementById("timeRemaining");
     let elinuTotalDownloaded = document.getElementById("totalDownloaded");
     let elinuFriendlyFileName = document.getElementById("fileName");
     
-    document.getElementById("jaugeprogress").style.width = dlPercentage+ "%";
+    document.getElementById("progressbar").style.width = dlPercentage+ "%";
     document.getElementById("ringProgressText").innerHTML= dlPercentage+ "%";
     
-    elinuCurrentDl.innerHTML = currentDl;
+    elinuCurrentDl.innerHTML = currentDl + "/";
     elinuDownloadSpeed.innerHTML = downloadSpeed;
     elinuTimeRemaining.innerHTML = timeRemaining;
     elinuTotalDownloaded.innerHTML = totalDownloaded;
-    elinuFriendlyFileName.innerHTML = friendlyFileName;
+    elinuFriendlyFileName.innerHTML = "Updates:";
 });
 ipcRenderer.on("downloadCompleted", (event) => {
     elementSetInnerHtml("no-update",`Extracting file on progress...`);
 });
 
 ipcRenderer.on("extractingStart", (event, currentFiles, fileCount) =>{
-
     ringLoadingBox.style.display = "none";
     updateEtaStr.style.display = "none";
+
+    let percent = Math.min(Math.floor(currentFiles / fileCount * 100), 100);
+
+    document.getElementById("progressbar").style.width = percent+ "%"; 
+    
     elementSetDisplay("no-update","block");
     
     elementSetInnerHtml("no-update",`Extracting file ${currentFiles} of ${fileCount}...`);
@@ -199,6 +225,7 @@ ipcRenderer.on("extractingDone", (event) =>{
         enableBtnPlay();
         gameBtnStr.innerHTML = "LAUNCH GAME";
         ifNoUpdateDisplayThis();
+        enableLangSwitchOnUpdate();
     }, 3000);
 });
 
@@ -225,6 +252,7 @@ ipcRenderer.on("serverStatus", (event, status) => {
 
 
 function downloadUpdates() {
+    disableLangSwitchOnUpdate();
     elementSetDisplay("no-update","none");
     disableBtnPlay();
     gameBtnStr.innerHTML = "Updates in progress...";
@@ -239,9 +267,24 @@ ipcRenderer.send("pauseDownload");
 function resumeDownload() {
 ipcRenderer.send("resumeDownload");
 }
+
+function disableLangSwitchOnUpdate(){
+    document.getElementById("switchLang").style.pointerEvents = "none";
+}
+function enableLangSwitchOnUpdate(){
+    document.getElementById("switchLang").style.pointerEvents = "visible";
+}
 function ifNoUpdateDisplayThis() {
     ringLoadingBox.style.display = "none";
     updateEtaStr.style.display = "none";
+    document.getElementById("progressbar").style.width = 100 + "%";
     elementSetDisplay("no-update","block");
     elementSetInnerHtml("no-update","You can launch the game");
+}
+
+function ifUpdateDisplayThis(){
+    updateEtaStr.style.display = "flex";
+    ringLoadingBox.style.display = "block";
+    elementSetDisplay("no-update","none");
+    disableBtnPlay();
 }

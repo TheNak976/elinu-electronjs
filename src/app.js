@@ -39,7 +39,8 @@ global.launcherConfig = (function () {
             return require(path.join(process.cwd(), 'teraElinu.json'));
         } catch (e) {
             let defaultCfg = {
-                lang: "uk"
+                lang: "uk",
+                gamePath: "C:\\Client\\TL.exe"
             };
             fs.writeFileSync(path.join(process.cwd(), 'teraElinu.json'), JSON.stringify(defaultCfg, null, 4));
             return defaultCfg;
@@ -79,7 +80,7 @@ const createWindow = () => {
         webPreferences: {
             contextIsolation: true,
             preload: path.join(__dirname, 'preload.js'),
-            devTools: true,
+            devTools: false,
             nodeIntegration: true,
             enableRemoteModule: true
         }
@@ -132,7 +133,7 @@ const createWindow = () => {
         webPreferences: {
             contextIsolation: true,
             preload: path.join(__dirname, 'preload.js'),
-            devTools: true,
+            devTools: false,
             nodeIntegration: true,
             enableRemoteModule: true
         }
@@ -166,11 +167,19 @@ const createWindow = () => {
         webPreferences: {
             contextIsolation: true,
             preload: path.join(__dirname, 'preload.js'),
-            devTools: true,
+            devTools: false,
             nodeIntegration: true,
             enableRemoteModule: true
         }
     });
+
+
+    mainW.webContents.on('before-input-event', (event, input) => {
+        if (input.control && input.key.toLowerCase() === 'r') {
+            event.preventDefault()
+        }
+    })
+    
     //set elinu icon app and Overlay
     mainW.setIcon(path.join(__dirname, 'TeraElinuIcon.ico'));
     mainW.setOverlayIcon(path.join(__dirname, 'TeraElinuLogo.png'), 'Tera Elinu logo')
@@ -189,13 +198,14 @@ const createWindow = () => {
     //first if dom ready
     mainW.webContents.once("dom-ready", () => {
 
+        globalShortcut.unregisterAll();
+        
+        
         tcpPingPort("94.23.17.161", 7801).then(online => {
             mainW.webContents.send("serverStatus", online)
         })
         
         //we check for updates
-        globalShortcut.register('F5', checkForUpdates);
-        globalShortcut.register('CommandOrControl+R', checkForUpdates);
         checkForUpdates();
         console.log("mainW dom-ready");
     });
@@ -221,6 +231,14 @@ const createWindow = () => {
             }
             case "endPopup": {
                 mainW.webContents.send('gameEndMessage', message, code);
+                console.log(`endPopup Received message: ${message}(${code})`);
+                if (code === "0") {
+                    console.log(`[ElinuLauncher]-> Game Client Closed With: ${message}(${code})`);
+                }
+                break;
+            }
+            case "gameCannotLaunch": {
+                mainW.webContents.send('gameCannotLaunch', message, code);
                 console.log(`endPopup Received message: ${message}(${code})`);
                 if (code === "0") {
                     console.log(`[ElinuLauncher]-> Game Client Closed With: ${message}(${code})`);
@@ -307,10 +325,16 @@ ipcMain.on('window-close', (event) => {
 });
 
 
+app.on('browser-window-focus', function () {
+    globalShortcut.unregisterAll();
+});
+
+
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
 app.on('ready', () => {
+    globalShortcut.unregisterAll();
     createWindow();
 });
 

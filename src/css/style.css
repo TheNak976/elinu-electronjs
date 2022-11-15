@@ -170,7 +170,7 @@ body {
   padding-right: 0px;
   background-color: transparent;
 }
-.Jaugeprogress {
+.progressbar {
   height: 14px;
   align-self: center;
   background: linear-gradient(270deg, #ffbc00 0%, #49231a 100%);
@@ -178,7 +178,7 @@ body {
   border-radius: 0 1px 1px 0;
   animation: rainbow 4s linear infinite;
 }
-.Jaugeprogress::before {
+.progressbar::before {
   content: "";
   top: 0;
   left: 0;
@@ -187,7 +187,7 @@ body {
   background: linear-gradient(to left, #ffbc00, #49231a);
   filter: blur(10px);
 }
-.Jaugeprogress::after {
+.progressbar::after {
   content: "";
   top: 0;
   left: 0;

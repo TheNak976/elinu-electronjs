@@ -1,6 +1,6 @@
 const ffi = require('ffi-napi');
 const SLS_URL = "https://tera-elinu.eu/server/serverlist";
-const {app, BrowserWindow, ipcMain, dialog, globalShortcut} = require('electron');
+const {app, BrowserWindow, ipcMain, dialog} = require('electron');
 const Store = require('electron-store');
 
 
@@ -11,7 +11,7 @@ const loadElinuLib = () => {
     try {
         teraLauncher = ffi.Library('./ElinuLauncher.dll', {
             'LaunchGame': [
-                'void', ['string', 'string']
+                'void', ['string', 'string', 'string']
             ],
             'RegisterMessageListener': [
                 'void', ['pointer']
@@ -49,11 +49,11 @@ function registerMessageListener(listener) {
     return cb;
 }
 
-function launchGameSync(gamestr, lang) {
+function launchGameSync(gamestr, lang, gamePath) {
     try {
-        teraLauncher.LaunchGame(SLS_URL + "." + lang, gamestr);
+        teraLauncher.LaunchGame(SLS_URL + "." + lang, gamestr, gamePath + "\\TL.exe");
     } catch (e) {
-
+        console.log(e);
     }
 
 }
@@ -90,14 +90,19 @@ ipcMain.on('launchGame', async (event) => {
             "}";
 
         //launch game
-        launchGameSync(gameString, global.launcherConfig.lang, (err) => {
-            if (err) throw err;
-            event.reply('exitGame');
+        launchGameSync(gameString, global.launcherConfig.lang, global.launcherConfig.gamePath, (err) => {
+            if (err){
+                console.log("Unreachable Game")
+                event.reply('exitGame');
+                throw err;
+            } 
+            
         });
 
 
     } catch (err) {
-        //event.reply('launchGameRes', err);
+        console.log("Unreachable GameRes")
+        event.reply('launchGameRes', err);
     }
 });
 
