@@ -2,7 +2,7 @@
 
 <html lang="english">
 <head>
-    <title>MainPage</title>
+    <title>TeraElinu</title>
     <meta content="MainPage" property="og:title" />
     <meta content="width=device-width, initial-scale=1.0" name="viewport" />
     <meta charset="utf-8" />
@@ -14,6 +14,7 @@
     <script src="../node_modules/xterm/lib/xterm.js"></script>
     <link href="./css/style.css" rel="stylesheet" />
     <link rel="stylesheet" href="css/tooltipster.bundle.min.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/modaal@0.4.4/dist/css/modaal.css">
     <style data-section-id="dropdown">
         [data-thq="thq-dropdown"]:hover > [data-thq="thq-dropdown-list"] {
             display: flex;
@@ -26,7 +27,6 @@
     <script>
         const params = new URLSearchParams(window.location.search);
         window.language = params.get('lang');
-        console.log("current lang is: "+window.language)
     </script>
 </head>
 <body>
@@ -39,7 +39,7 @@
                     <div class="main-page-accountinfos">
                         <div class="main-page-namebox">
                             <span class="main-page-dsplay-username" id="dsplay-username">
-                                Bienvenue <span id="user">Zanatan97</span>
+                                Bienvenue <span id="user"></span>
                             </span>
                             <div class="main-page-coin-box">
                                 <div>Vous avez</div>
@@ -84,7 +84,11 @@
                             </li>
                         </ul>
                     </div>
-
+                    <a class="main-page-navlink tooltip" href="#show_settings" title="Settings" id="settings">
+                        <div class="sm-btn-box">
+                            <img alt="settings" class="main-page-settings" id="launcher-settings" src="images/Settings.svg" />
+                        </div>
+                    </a>
                     <a class="main-page-navlink tooltip" href="#" title="Logout" id="logout" onclick="doLogout()">
                         <div class="sm-btn-box">
                             <img alt="Frame1442" class="main-page-logout" id="launcher-logout" src="images/frame1442-asba.svg" />
@@ -104,8 +108,8 @@
                 <div class="main-page-navmenu">
                     <a class="nav-link tooltip" href="#" title="Go to our website"><span>WEBSITE</span></a>
                     <a class="nav-link tooltip" href="#" id="open-console" title="Game console"><span>CONSOLE</span></a>
-                    <a class="nav-link tooltip" href="#" title="Support our server" id="pauseDl" onclick="pauseDownload()"><span>Pause</span></a>
-                    <a class="nav-link tooltip" href="#" title="Join our community" id="resumeDl" onclick="resumeDownload()"><span>Resume</span></a>
+                    <a class="nav-link tooltip" href="#" title="Support our server"><span>Donate</span></a>
+                    <a class="nav-link tooltip" href="#" title="Join our community"><span>Discord</span></a>
                     <a class="nav-link tooltip" href="#" title="If you have an issue" onclick="downloadUpdates()"><span>TEST DL</span></a>
                 </div>
                 <div class="main-page-game-message GameMessage" id="gameMsgBox">
@@ -117,61 +121,6 @@
                     <span class="serverStatsText green">
                         <span>Server is Online</span>
                     </span>
-                </div>
-            </div>
-            <div class="main-page-footer">
-                <div class="main-page-launchboox">
-                    <a class="main-page-navlink3" href="#" id="play-game" onclick="preLaunchGame()">
-                        <div class="main-page-btnplay" id="btn-play">
-                            <span class="main-page-text12">
-                                <span id="launchGameString">LAUNCH GAME</span>
-                            </span>
-                        </div>
-                    </a>
-                    <div class="main-page-client">
-                        <span class="main-page-text15">
-                            <span>Client Version:</span>
-                        </span>
-                        <span class="main-page-client-v" id="client-v">
-                            <span>V 100.2</span>
-                        </span>
-                    </div>
-                </div>
-                <div class="main-page-patchbox">
-                    <div class="main-page-jauge-box" id="jauge-box">
-                        <div class="progressbar" id="progressbar"></div>
-                    </div>
-                    <div class="no-update" id="no-update"></div>
-                    <div class="main-page-textetat">
-                        
-                        <div class="main-page-client1">
-                            <span class="main-page-text18">
-                                <span>Downloading <span id="fileName">...</span> </span>
-                            </span>
-                            <span class="main-page-client-dl" id="client-dl">
-                                <span id="currentDl"></span><span id="totalDownloaded"></span>
-                            </span>
-                        </div>
-                        <div class="main-page-speedbox">
-                            <span class="main-page-text21"><span>Speed:</span></span>
-                            <span class="main-page-dl-speed" id="dl-speed">
-                                <span id="downloadSpeed">...</span>
-                            </span>
-                        </div>
-                        <div class="main-page-time">
-                            <span class="main-page-text24">
-                                <span>ETA:</span>
-                            </span>
-                            <span class="main-page-dl-time" id="dl-time">
-                                <span id="timeRemaining">...</span>
-                            </span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="ring-loading-box">
-                <div class="ring" id="ringProgressText">0%
-                    <span></span>
                 </div>
             </div>
             <div class="main-page-newscont">
@@ -206,6 +155,63 @@
                     </div>
                 </a>
             </div>
+            <div class="main-page-footer">
+                <div class="main-page-launchboox">
+                    <a class="main-page-navlink3" href="#" id="play-game" onclick="preLaunchGame()">
+                        <div class="main-page-btnplay" id="btn-play">
+                            <span class="main-page-text12">
+                                <span id="launchGameString">LAUNCH GAME</span>
+                            </span>
+                        </div>
+                    </a>
+                    <div class="main-page-client">
+                        <span class="main-page-text15">
+                            <span>Client Version:</span>
+                        </span>
+                        <span class="main-page-client-v" id="client-v">
+                            <span>V 100.2</span>
+                        </span>
+                    </div>
+                </div>
+                <img src="images/Play.svg" alt="Play2144" class="main-page-play"  id="resumeDl" onclick="resumeDownload()" style="display:none;"/>
+                <img src="images/Pause.svg" alt="Pause2142" class="main-page-pause" id="pauseDl" onclick="pauseDownload()" style="display:none;"/>
+                <div class="main-page-patchbox">
+                    <div class="main-page-jauge-box" id="jauge-box">
+                        <div class="progressbar" id="progressbar"></div>
+                    </div>
+                    <div class="no-update" id="no-update"></div>
+                    <div class="main-page-textetat">
+
+                        <div class="main-page-client1">
+                            <span class="main-page-text18">
+                                <span>Downloading <span id="fileName">...</span> </span>
+                            </span>
+                            <span class="main-page-client-dl" id="client-dl">
+                                <span id="currentDl"></span><span id="totalDownloaded"></span>
+                            </span>
+                        </div>
+                        <div class="main-page-speedbox">
+                            <span class="main-page-text21"><span>Speed:</span></span>
+                            <span class="main-page-dl-speed" id="dl-speed">
+                                <span id="downloadSpeed">...</span>
+                            </span>
+                        </div>
+                        <div class="main-page-time">
+                            <span class="main-page-text24">
+                                <span>ETA:</span>
+                            </span>
+                            <span class="main-page-dl-time" id="dl-time">
+                                <span id="timeRemaining">...</span>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="ring-loading-box">
+                <div class="ring" id="ringProgressText">0%
+                    <span></span>
+                </div>
+            </div>            
             <div class="elinu-console-console-modal-overlay" id="elinu-console-console-modal-overlay">
             </div>
             <div class="consoleFrameBox" id="consoleFrameBox">
@@ -215,18 +221,64 @@
             </div>
         </div>
     </div>
+    <div id="show_settings" style="display:none;">
+        <div class="overlaycontainer-overlaycontainer">
+    <span class="overlaycontainer-overlay-title">
+      <span>GAME LOCATION</span>
+    </span>
+        <input onclick="getDir()" id="clientFolder" type="text" placeholder="Click and locate your game client folder" class="overlaycontainer-gamelocationinput" webkitdirectory/>
+        
+        <a href="#" class="overlaycontainer-navlink" onclick="closeModal()">
+            <div class="overlaycontainer-btn-save-location">
+                <span class="overlaycontainer-text1"><span>SAVE LOCATION</span></span>
+            </div>
+        </a>
+        </div>
+    </div>    
 </div>
 <script src="https://code.jquery.com/jquery-3.6.1.min.js"></script>
 <script src="js/tooltipster.bundle.min.js"></script>
 <script src="http://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
 <script src="./js/particlejs-anim.js" type="text/javascript"></script>
+<script src="https://cdn.jsdelivr.net/npm/modaal@0.4.4/dist/js/modaal.min.js"></script>
 <!-- SelectableText Plugin-->
 <script src="js/tooltipster-selectableText.js"></script>
 <script type="text/javascript">
     document.getElementById('selectedLangImg').src = "images/" + window.language + ".png";
 </script>
 <script>
+    function closeModal(){
+        $('#settings').modaal('close');
+    }
+    let clientInputString = document.getElementById('clientFolder');
+
+    ipcRenderer.on("loadConfig", (event, config) => {//load currentConfig
+        clientInputString.value = config.gamePath;
+    });
+    
+    async function getDir() {//on click openShowDialog to select a directory
+        ipcRenderer.send("select-dirs");
+    }
+    
+    ipcRenderer.on("dirSelected", (event, dirPath) => {//listening the mainApp for selected path
+        clientInputString.value = dirPath;
+        ipcRenderer.send("saveUserClientLocation", clientInputString.value);
+    });
+    
+
+    
     $(document).ready(function() {
+
+        $('#settings').modaal({
+            before_open: function() {
+                //reload config
+                ipcRenderer.send("reloadConfig");
+                ipcRenderer.on("configReloaded", (event, config) => {//load currentConfig
+                    clientInputString.value = config.gamePath;
+                });
+            }
+        })
+
         $('.tooltip').tooltipster({
             animation: 'grow',
             delay: 100,

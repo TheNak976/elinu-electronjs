@@ -11,6 +11,8 @@ const { basename } = require("path");
 const currentDirectory = basename(process.cwd());
 const axios = require('axios');
 const { tcpPingPort } = require("tcp-ping-port")
+const global = require('./global');
+const {remoteJsonVersion} = require("./global");
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 // eslint-disable-next-line global-require
@@ -19,44 +21,15 @@ if (require('electron-squirrel-startup')) {
 }
 process.env.ELECTRON_IS_DEV = 0;
 
+
 let MessageListener;
 let winLogin;
 let splash;
 let mainW;
-
+let remoteVersionString;
+let getRemoteVersion = Promise.all([remoteJsonVersion]);
 const localStore = new Store();
 let getUserData;
-
-
-
-
-
-
-//load config json
-global.launcherConfig = (function () {
-    if (fs.existsSync(path.join(process.cwd(), 'teraElinu.json'))) {
-        try {
-            return require(path.join(process.cwd(), 'teraElinu.json'));
-        } catch (e) {
-            let defaultCfg = {
-                lang: "uk",
-                gamePath: "C:\\Client\\TL.exe"
-            };
-            fs.writeFileSync(path.join(process.cwd(), 'teraElinu.json'), JSON.stringify(defaultCfg, null, 4));
-            return defaultCfg;
-        }
-    } else {
-        fs.writeFileSync(path.join(process.cwd(), 'error.txt'), "teraElinu.json not found!");
-        
-        notifier.notify({
-            title: 'Tera Elinu',
-            message: 'teraElinu.json not found!',
-            icon: path.join(__dirname, 'TeraElinuIcon.png'),
-            appID: 'Tera-Elinu',
-        });
-    }
-
-})();
 
 
 const createWindow = () => {
@@ -93,31 +66,38 @@ const createWindow = () => {
     splash.center();
 
     //first if dom ready
+    //check for app updates
     //then check if userData. Then check if stayConnected is set
     //if stayConnected then Load mainWindow with userData, connect the user
     //Else do the basics things(load the login page)
-    splash.webContents.once("dom-ready", () => {
-        let getUserStayConnected = JSON.parse(localStore.get('ifStayConnected'));
-
-        if (getUserData.AuthKey){//if get user data
-            if (getUserStayConnected.stayConnected === true){//if user want to stay connected
-                setTimeout(function () {//directly show the main window
-                    splash.close();
-                    mainW.center();
-                    mainW.webContents.send('users', JSON.parse(localStore.get('users')));
-                    mainW.show();
-                }, 2000);
-                console.log("stayConnected exist");
-            }else{//else show login window
-                setTimeout(function () {
-                    splash.close();
-                    winLogin.center();
-                    winLogin.show();
-                }, 2000);
-            }
-            console.log("userdata exist");
+    splash.webContents.once("dom-ready",  () => {
+        
+        if (fs.existsSync(path.join("./version.txt")) === false) {//if version not exist
+            
+            let createRemoteVersion = fs.createWriteStream('./version.txt', 'utf-8');
+            createRemoteVersion.write("1.0.0");
+            console.log("[ElinuLauncher]-> version.txt created!")
+            
         }
-        console.log("Splash dom-ready");
+        
+        //check for localStore
+        if (!fs.existsSync(path.join(localStore.path))) {//if localStore path not exist
+            console.log("[ElinuLauncher]-> localStore path not exist")
+
+            let defaultCfg = {
+                version_client_updates: "{\"version\":\"1.0.0\"}",
+                users: "default",
+                ifStayConnected: "{\"stayConnected\":false}"
+            };
+            localStore.set(defaultCfg);
+        }
+        console.log("[ElinuLauncher]-> localStore path found: " + localStore.path)
+        
+        setTimeout(async function () {//wait 1sec before call checkUpdates
+            await checkForAppUpdates();
+        }, 1000);
+
+        console.log("[ElinuLauncher]-> Splash dom-ready");
     });
 
     // Create the browser window of login
@@ -148,7 +128,7 @@ const createWindow = () => {
     winLogin.loadURL(`file://${__dirname}/index.html?lang=${global.launcherConfig.lang}`);
     winLogin.hide();
     winLogin.on('closed', () => {
-        console.log('User closed the Login window');
+        console.log('[ElinuLauncher]-> User closed the Login window');
         ipcMain.removeAllListeners();
         app.quit();
     });
@@ -190,7 +170,7 @@ const createWindow = () => {
     //hide on load
     mainW.hide();
     mainW.on('closed', () => {
-        console.log('User closed the Main window');
+        console.log('[ElinuLauncher]-> User closed the Main window');
         ipcMain.removeAllListeners();
         app.quit();
     });
@@ -198,17 +178,89 @@ const createWindow = () => {
     //first if dom ready
     mainW.webContents.once("dom-ready", () => {
 
-        globalShortcut.unregisterAll();
+        globalShortcut.unregisterAll();//disable all keys command
         
+        //loadConfig and send to render
+        mainW.webContents.send("loadConfig", global.launcherConfig)
         
+        //check server status
         tcpPingPort("94.23.17.161", 7801).then(online => {
             mainW.webContents.send("serverStatus", online)
         })
         
-        //we check for updates
-        checkForUpdates();
-        console.log("mainW dom-ready");
+        //we check for client updates
+        checkForClientUpdates();
+        console.log("[ElinuLauncher]-> mainWindow dom-ready ");
     });
+
+    async function launchLogin(){
+        setTimeout(function () {
+            splash.close();
+            winLogin.center();
+            winLogin.show();
+        }, 2000);
+    }
+    async function checkForAppUpdates() {
+        try {
+            let localVersionAppUpdates = fs.readFileSync('./version.txt',{encoding:'utf8', flag:'r'});
+            remoteVersionString = await getRemoteVersion;
+            let remoteVersionFounded = remoteVersionString[0].version_launcher;
+
+            if (localVersionAppUpdates === remoteVersionFounded) {//first We check if there are updates of app.
+                console.log("[ElinuLauncher]-> There is no app update")
+                let getUserStayConnected = JSON.parse(localStore.get('ifStayConnected'));
+
+                if (getUserStayConnected.stayConnected === false) {
+                    await launchLogin();
+                } else {//if get user data
+                    if (getUserStayConnected.stayConnected === true) {//if user want to stay connected
+                        setTimeout(function () {//directly show the main window
+                            splash.close();
+                            mainW.center();
+                            mainW.webContents.send('users', JSON.parse(localStore.get('users')));
+                            mainW.show();
+                        }, 2000);
+                        console.log("[ElinuLauncher]-> User set StayConnected to true");
+                    } else {//else show login window
+                        await launchLogin();
+                    }
+                    console.log("[ElinuLauncher]-> Userdata exist");
+                }
+
+            } else {
+
+                console.log(`[ElinuLauncher]-> App update available with version: ${remoteVersionFounded}`);
+                console.log(`[ElinuLauncher]-> localVersion is : ${localVersionAppUpdates}`);
+                // TODO: app update downloader
+            }
+
+        } catch (e) {
+            console.log(e)
+        }
+    }
+    
+    async function checkForClientUpdates() {
+        
+        try {
+            
+            remoteVersionString = await getRemoteVersion;
+            let localVersionClientUpdates = JSON.parse(localStore.get('version_client_updates'));
+            
+            if(localVersionClientUpdates.version === remoteVersionString[0].version_client_updates) {//first We check if there are updates of client.
+                console.log("[ElinuLauncher]-> There is no client update")
+                mainW.webContents.send("noUpdate");
+            }else {
+                console.log(`[ElinuLauncher]-> Client update available with version: ${remoteVersionString[0].version_client_updates}`);
+                console.log(`[ElinuLauncher]-> localVersion is : ${localVersionClientUpdates}`);
+                //let updateRemoteVersion = fs.createWriteStream('./version.txt', 'utf-8');
+                //updateRemoteVersion.write(remoteVersionString[0].version_client_updates);
+            }
+
+        } catch (e) {
+            console.error(e);
+        }
+    }   
+    
     
     MessageListener = elinu_launcher.registerMessageListener((message, code) => {
         switch (message) {
@@ -225,13 +277,13 @@ const createWindow = () => {
                 break;
             }
             case "gameEvent":{
-                console.log(`gameEvent Received message: ${message}(${code})`);
+                console.log(`[ElinuLauncher]-> gameEvent Received message: ${message}(${code})`);
                 mainW.webContents.send('gameEventMessage', message, code);
                 break;
             }
             case "endPopup": {
                 mainW.webContents.send('gameEndMessage', message, code);
-                console.log(`endPopup Received message: ${message}(${code})`);
+                console.log(`[ElinuLauncher]-> endPopup Received message: ${message}(${code})`);
                 if (code === "0") {
                     console.log(`[ElinuLauncher]-> Game Client Closed With: ${message}(${code})`);
                 }
@@ -239,7 +291,7 @@ const createWindow = () => {
             }
             case "gameCannotLaunch": {
                 mainW.webContents.send('gameCannotLaunch', message, code);
-                console.log(`endPopup Received message: ${message}(${code})`);
+                console.log(`[ElinuLauncher]-> endPopup Received message: ${message}(${code})`);
                 if (code === "0") {
                     console.log(`[ElinuLauncher]-> Game Client Closed With: ${message}(${code})`);
                 }
@@ -250,49 +302,45 @@ const createWindow = () => {
     elinu_launcher.onLoadElinuLauncher();
 };
 
+//to select the game path
+ipcMain.on('select-dirs', async (event, arg) => {
+    const result = await dialog.showOpenDialog(mainW, {
+        properties: ['openDirectory']
+    });
+
+    if(result.canceled === true){
+        console.log(result.canceled);
+    }else{
+        let gPath = result.filePaths[0];
+        console.log('[ElinuLauncher]-> directories selected', gPath)
+        mainW.webContents.send('dirSelected', gPath);
+    }
+
+})
+ipcMain.on('saveUserClientLocation', async (event, clientInputString) => {
+    launcherConfig.gamePath = clientInputString;
+    fs.writeFileSync(path.join(process.cwd(), 'teraElinu.json'), JSON.stringify(launcherConfig, null, 4));
+    mainW.webContents.send('dirSaved', "success");
+})
+
+
 ipcMain.on("downloadUpdate", (event) => {
     !fs.existsSync(path.join(process.cwd() + "/files/")) && fs.mkdirSync(path.join(process.cwd() + "/files/"), {recursive: true})
 
-    console.log("downloading update")
+    console.log("[ElinuLauncher]-> downloading update")
     // Multi connections
     downloader.downloadProcess(mainW)
     
 });
 
-async function checkForUpdates() {
-    try {
-        let response = await axios.get("https://teraelinu.surge.sh/" + 'version.json');
-        let remoteVersion = response.data;
 
-        let localVersion = fs.readFileSync('./version.txt', 'utf-8');
-
-        if(localVersion === remoteVersion.version) {
-
-            console.log("no update")
-            mainW.webContents.send("noUpdate")
-            
-            if("maj client"){
-                //si maj, on fait les maj
-                //mainW.webContents.send("clientUpdateAvailable")
-            }
-            
-        }else {
-            console.log("update available")
-            let updateRemoteVersion = fs.createWriteStream('./version.txt', 'utf-8');
-            updateRemoteVersion.write(remoteVersion.version);
-        }
-        
-    } catch (e) {
-        console.error(e);
-    }
-}
 
 ipcMain.on('loginRequest', async (event, username, password, stayConnectedValue) => {
     await login.doLogin(mainW, winLogin, event, username, password, stayConnectedValue);
 });
 
 ipcMain.on('userCheck', async (event) => {
-    mainW.webContents.send('users', JSON.parse(localStore.get('users')));
+    mainW.webContents.send('users', localStore.get('users'));
 });
 
 ipcMain.on('logout', async (event) => {
@@ -312,6 +360,10 @@ ipcMain.on('langSelected', (event, lang) => {
     fs.writeFileSync(path.join(process.cwd(), 'teraElinu.json'), JSON.stringify(launcherConfig, null, 4));
     mainW.loadURL(`file://${__dirname}/main.html?lang=${global.launcherConfig.lang}`);
     winLogin.loadURL(`file://${__dirname}/index.html?lang=${global.launcherConfig.lang}`);
+});
+
+ipcMain.on('reloadConfig', (event) => {
+    mainW.webContents.send("configReloaded", global.launcherConfig)
 });
 
 ipcMain.on('window-minimize', (event) => {
@@ -368,4 +420,3 @@ process.on('exit', () => {
 
 });
 
-//TODO Finir la traduction du launcher et continuer le codage du luancher

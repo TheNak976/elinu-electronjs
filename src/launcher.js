@@ -55,7 +55,6 @@ function launchGameSync(gamestr, lang, gamePath) {
     } catch (e) {
         console.log(e);
     }
-
 }
 
 function sendMessageToClient(msg, content) {

@@ -226,7 +226,6 @@ body {
 .news-box:hover {
   z-index: 90;
   filter: brightness(1.2);
-  box-shadow: 0 0 40px 5px rgb(0 0 0 / 42%);
 }
 
 .first-news {
@@ -799,7 +798,10 @@ input[type="checkbox"]:checked::before {
   width: 15px;
   height: 13px;
 }
-
+.main-page-settings {
+  width: 18px;
+  height: 18px;
+}
 .main-page-minimize {
   width: 15px;
   height: 2px;
@@ -861,6 +863,22 @@ input[type="checkbox"]:checked::before {
   display: flex;
   position: absolute;
   flex-direction: column;
+}
+.main-page-play {
+  right: 300px;
+  width: 40px;
+  bottom: 47px;
+  height: 40px;
+  position: absolute;
+  cursor: pointer;
+}
+.main-page-pause {
+  right: 300px;
+  width: 40px;
+  bottom: 47px;
+  height: 40px;
+  position: absolute;
+  cursor: pointer;
 }
 .main-page-navlink3 {
   display: contents;
@@ -1565,4 +1583,129 @@ color: rgba(247, 183, 0, 1)
 }
 .elinu-tooltip-theme.tooltipster-top .tooltipster-arrow-background {
   border-top-color: rgb(37 41 52 / 98%) !important;
+}
+
+.modaal-container {
+
+  background: none !important;
+}
+.modaal-content-container {
+  display: flex;
+  align-content: center;
+  justify-content: center;
+  align-items: center;
+}
+
+.modaal-close:focus, .modaal-close:hover {
+  background: rgb(255 255 255 / 7%) !important;
+}
+.modaal-close:before, .modaal-close:after {
+  background: rgb(255 255 255 / 35%) !important;
+
+}
+.overlaycontainer-overlaycontainer {
+  width: 735px;
+  display: flex;
+  padding: 40px;
+  position: relative;
+  box-shadow: 0px 0px 21px 6px rgba(54, 45, 83, 0.25) ;
+  align-items: center;
+  flex-shrink: 0;
+  border-color: #202732;
+  border-style: solid;
+  border-width: 1px;
+  flex-direction: column;
+  background-color: rgba(19, 27, 35, 1);
+}
+.overlaycontainer-overlay-title {
+  color: rgba(255, 255, 255, 0.6299999952316284);
+  height: auto;
+  font-size: 20px;
+  align-self: auto;
+  font-style: Bold;
+  text-align: left;
+  font-family: Raleway;
+  font-weight: 700;
+  line-height: normal;
+  font-stretch: normal;
+  margin-right: 0;
+  margin-bottom: 24px;
+  text-decoration: none;
+}
+.overlaycontainer-gamelocationinput {
+  outline: none;
+  color: #4A5157;
+  width: 537px;
+  height: 40px;
+  display: flex;
+  padding: 10px 10px 10px 20px;
+  z-index: 1;
+  position: relative;
+  font-size: 14px;
+  text-align: left;
+  align-items: center;
+  flex-shrink: 0;
+  font-family: Raleway;
+  font-weight: 500;
+  border-color: rgba(43, 62, 81, 1);
+  border-style: solid;
+  border-width: 1px;
+  border-radius: 5px;
+  margin-bottom: 24px;
+  background-color: transparent;
+  transition: .2s ease-in;
+}
+input.overlaycontainer-gamelocationinput:focus {
+  border-color: #434a50;
+}
+.overlaycontainer-navlink {
+  display: contents;
+}
+.overlaycontainer-btn-save-location {
+  width: 214px;
+  height: 57px;
+  display: flex;
+  z-index: 2;
+  position: relative;
+  box-shadow: inset 0px 0px 19px 10px rgb(116 70 14 / 80%),
+  0px 0px 35px 0px rgb(255 171 46 / 35%);
+  align-items: center;
+  flex-shrink: 0;
+  border-color: #322909;
+  border-style: solid;
+  border-width: 2px;
+  border-radius: 3px;
+  margin-bottom: 24px;
+  justify-content: center;
+  text-decoration: none;
+  background-color: rgba(255, 204, 60, 1);
+  transition: .2s ease-in;
+  filter: brightness(0.95);
+}
+.overlaycontainer-btn-save-location:hover {
+  filter: brightness(1.1);
+}
+.overlaycontainer-text1 {
+  color: rgba(73, 35, 26, 1);
+  height: auto;
+  font-size: 18px;
+  align-self: auto;
+  font-style: Bold;
+  text-align: left;
+  font-family: Raleway;
+  font-weight: 700;
+  line-height: normal;
+  font-stretch: normal;
+  margin-right: 0;
+  margin-bottom: 0;
+  text-decoration: none;
+}
+.overlaycontainer-closeov {
+  top: 20px;
+  right: 20px;
+  width: 38px;
+  height: 38px;
+  z-index: 3;
+  position: absolute;
+  cursor: pointer;
 }

@@ -5,7 +5,8 @@ let gameBtn = document.getElementById("play-game");
 let btnPlay = document.getElementById("btn-play");
 let updateEtaStr = document.querySelector(".main-page-textetat")
 let ringLoadingBox = document.querySelector(".ring-loading-box")
-
+let pauseDl = document.getElementById("pauseDl");
+let resumeDl = document.getElementById("resumeDl");
 
 //progressGauge initial state
 ringLoadingBox.style.display = "none";
@@ -149,6 +150,12 @@ ipcRenderer.on("gameEndMessage", (event, message, code) => {
             consoleWrite("ServerList Problem! File not found!");
             showLaunchBtn();
         }
+        if (terminationCode === 3277521153) {
+            gameMsg.innerHTML = "Server Problem! Invalid login Request!";
+            consoleWrite("Invalid login Request! Restart your launcher, logout from launcher and login again!");
+            showLaunchBtn();
+        }
+        
         consoleWrite(`Game Client Closed with code: ${terminationCode}`);
     }
 });
@@ -205,6 +212,7 @@ ipcRenderer.on("updateDownloadProgress", (event, dlPercentage, currentDl, downlo
 });
 ipcRenderer.on("downloadCompleted", (event) => {
     elementSetInnerHtml("no-update",`Extracting file on progress...`);
+    pauseDl.style.display = "none";
 });
 
 ipcRenderer.on("extractingStart", (event, currentFiles, fileCount) =>{
@@ -252,20 +260,25 @@ ipcRenderer.on("serverStatus", (event, status) => {
 
 
 function downloadUpdates() {
+    pauseDl.style.display = "block";
     disableLangSwitchOnUpdate();
     elementSetDisplay("no-update","none");
     disableBtnPlay();
-    gameBtnStr.innerHTML = "Updates in progress...";
+    gameBtnStr.innerHTML = "Download in progress...";
     updateEtaStr.style.display = "flex";
     ringLoadingBox.style.display = "block";
     ipcRenderer.send("downloadUpdate");
 }
 function pauseDownload() {
-ipcRenderer.send("pauseDownload");
+    pauseDl.style.display = "none";
+    resumeDl.style.display = "block";
+    ipcRenderer.send("pauseDownload");
     
 }
 function resumeDownload() {
-ipcRenderer.send("resumeDownload");
+    pauseDl.style.display = "block";
+    resumeDl.style.display = "none";
+    ipcRenderer.send("resumeDownload");
 }
 
 function disableLangSwitchOnUpdate(){

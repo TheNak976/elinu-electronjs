@@ -1,29 +1,36 @@
-﻿const {ipcMain, dialog, globalShortcut} = require('electron');
+﻿const {ipcMain, dialog} = require('electron');
 const fs = require('fs');
 const path = require('path');
 const formatBytes = require('pretty-byte');
 const {DownloadWorker, utils} = require("rapid-downloader");
 const axios = require('axios');
 const DecompressZip = require('decompress-zip');
-
+const global = require('./global');
+const {remoteJsonVersion} = require("./global");
 
 
 let worker;
 let url ;
 let fileName;
+let gamePath = global.launcherConfig.gamePath;
+let remoteVersionString;
 
-async function checkRemoteUpdate() {
+
+async function checkRemoteVersion() {
+    let getRemoteVersion = Promise.all([remoteJsonVersion]);
     try {
-        let response = await axios.get("https://teraelinu.surge.sh/" + 'version.json');
-        let remoteVersion = response.data;
-        url = remoteVersion.url;
+        remoteVersionString = await getRemoteVersion;
+        url = remoteVersionString[0].url_launcher;
         fileName = path.posix.basename(url)
     } catch (e) {
         console.error(e);
     }
+    
 }
-checkRemoteUpdate();
+checkRemoteVersion();
+
 let pathFileName = path.join(process.cwd() + `/files/${fileName}`);
+
 function downloadProcess(currentWindow) {
 
     worker = new DownloadWorker(url, pathFileName, {
@@ -46,12 +53,12 @@ function downloadProcess(currentWindow) {
         });
 
         worker.on('finishing', () => {
-            console.log('Download is finishing');
+            console.log('[ElinuLauncher]-> Download is finishing');
             currentWindow.webContents.send("downloadCompleted")
         });
 
         worker.on('end', () => {
-            console.log('Download is done');
+            console.log('[ElinuLauncher]-> Download is done');
             extractUpdatesFiles(currentWindow);
         });
 
@@ -67,17 +74,17 @@ const extractUpdatesFiles = async (win) => {
 
         let currentFiles = fileIndex + 1;
         
-        console.log('Extracted file ' + (currentFiles) + ' of ' + fileCount);
+        console.log('[ElinuLauncher]-> Extracted file ' + (currentFiles) + ' of ' + fileCount);
 
         win.webContents.send("extractingStart", currentFiles, fileCount)
     });
     
     unZipper.on('error', function (err) {
-        console.log('Caught an error');
+        console.log('[ElinuLauncher]-> Caught an error', err);
     });
 
     unZipper.on('extract', function (log) {
-        console.log('Finished extracting');
+        console.log('[ElinuLauncher]-> Extracting done');
         win.webContents.send("extractingDone")
         try {
             fs.unlinkSync(pathFileName);
@@ -87,7 +94,7 @@ const extractUpdatesFiles = async (win) => {
         }
     });
     unZipper.extract({
-        path: path.join(process.cwd() + `/files/`)//destination
+        path: path.join(gamePath)//destination
     });
 
 }
@@ -116,4 +123,4 @@ function secondsToTime(s) {
 
     return str + Math.floor(secs) + 's';
 }
-module.exports = {downloadProcess };
+module.exports = {downloadProcess};

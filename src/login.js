@@ -30,7 +30,7 @@ async function doLogin(mainW, winLogin, event, username, password, stayConnected
                     localStore.set('users', JSON.stringify(response));
                     localStore.set('ifStayConnected', JSON.stringify(stayConnectedResponse));
                     console.log(stayConnectedResponse);
-                    //localStore.set('userStayConnected', stayConnectedResponse);
+
                     //send our user data to MainWindow render
                     mainW.webContents.send('users', JSON.parse(localStore.get('users')));
                     mainW.webContents.send('stayCo', JSON.parse(localStore.get('ifStayConnected')));
