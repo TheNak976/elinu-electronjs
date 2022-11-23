@@ -5,9 +5,7 @@ const Store = require('electron-store');
 const notifier = require('node-notifier');
 const langStrings = require('../langStrings.json');
 const { basename } = require("path");
-const currentDirectory = basename(process.cwd());
 const axios = require('axios');
-const { tcpPingPort } = require("tcp-ping-port");
 
 
 global.launcherConfig = (function () {
