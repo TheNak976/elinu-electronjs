@@ -15,12 +15,18 @@
 <body>
     <div class="wrapper">
       <span class="loader"></span>
-        <p id="starting-msg" data-string-label="UI_TEXT_SPLASH_STARTING_MESSAGE">UI_TEXT_SPLASH_STARTING_MESSAGE...</p> 
+        <p id="starting-msg" data-string-label="UI_TEXT_SPLASH_STARTING_MESSAGE">Launcher is starting..</p> 
       </div>
     <script src="js/helpers.js"></script>
     <script src="renderer.js"></script>
     <script>
         _TEXT_TRANSLATE(document.getElementById("starting-msg"), 'UI_TEXT_SPLASH_STARTING_MESSAGE')
+        
+        ipcRenderer.on("updateDownloadProgress", (event, str) => {
+            let splashStr = document.getElementById("starting-msg");
+            splashStr.innerHTML = str;
+        });
+        
     </script>
 </body>
 </html>

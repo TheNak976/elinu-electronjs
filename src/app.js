@@ -6,6 +6,7 @@ const Store = require('electron-store');
 const notifier = require('node-notifier');
 const langStrings = require('../langStrings.json');
 const downloader = require('./downloader');
+const appUpdater = require('./appUpdater');
 const login = require('./login');
 const { basename } = require("path");
 const currentDirectory = basename(process.cwd());
@@ -231,7 +232,7 @@ const createWindow = () => {
 
                 console.log(`[ElinuLauncher]-> App update available with version: ${remoteVersionFounded}`);
                 console.log(`[ElinuLauncher]-> localVersion is : ${localVersionAppUpdates}`);
-                // TODO: app update downloader
+                await appUpdater.downloadProcess(splash)
             }
 
         } catch (e) {

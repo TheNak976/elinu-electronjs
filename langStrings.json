@@ -1,6 +1,7 @@
 ﻿{
   "uk": {
     "UI_TEXT_SPLASH_STARTING_MESSAGE": "Launcher is starting...",
+    "UI_TEXT_SPLASH_ON_LAUNCHER_UPDATE": "Downloading updates: ${dlPercentage}%... (${currentDl}/${totalSize}",
     "UI_TEXT_LOGIN_BUTTON_LOGIN": "Login",
     "UI_TEXT_LOGIN_ATTEMPT": "Attempt to connect...",
     "UI_TEXT_LOGIN_STAY_TEXT": "Stay connected",
@@ -11,6 +12,7 @@
 
   "fr": {
     "UI_TEXT_SPLASH_STARTING_MESSAGE": "Lancement du launcher...",
+    "UI_TEXT_SPLASH_ON_LAUNCHER_UPDATE": "Téléchargement en cours: ${dlPercentage}%... (${currentDl}/${totalSize}",
     "UI_TEXT_LOGIN_BUTTON_LOGIN": "Connexion",
     "UI_TEXT_LOGIN_ATTEMPT": "Tentative de connexion...",
     "UI_TEXT_LOGIN_STAY_TEXT": "Rester connecté",

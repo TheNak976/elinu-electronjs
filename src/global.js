@@ -35,7 +35,7 @@ global.launcherConfig = (function () {
 })();
 
 global.remoteJsonVersion = (async function () {
-    let response = await axios.get("https://teraelinu.surge.sh/" + 'version.json');
+    let response = await axios.get("http://127.0.0.1:3000/" + 'version.json');
     return response.data;
 })();
 

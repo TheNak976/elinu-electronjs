@@ -20,7 +20,7 @@ async function checkRemoteVersion() {
     let getRemoteVersion = Promise.all([remoteJsonVersion]);
     try {
         remoteVersionString = await getRemoteVersion;
-        url = remoteVersionString[0].url_launcher;
+        url = remoteVersionString[0].url_client_updates;
         fileName = path.posix.basename(url)
     } catch (e) {
         console.error(e);
