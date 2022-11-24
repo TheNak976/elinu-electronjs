@@ -19,11 +19,27 @@ let remoteVersionString;
 
 async function downloadProcess(currentWindow) {
     
-    let getRemoteVersion = Promise.all([remoteJsonVersion]);
-    
-    remoteVersionString = await getRemoteVersion;
-    url = remoteVersionString[0].url_launcher;
-    fileName = path.posix.basename(url)
+    try {
+        let getRemoteVersion = Promise.all([remoteJsonVersion]);
+
+        remoteVersionString = await getRemoteVersion;
+        url = remoteVersionString[0].url_launcher;
+        fileName = path.posix.basename(url)
+    }catch (e) {
+        const options = {
+            type: 'error',
+            message: "Cannot access to remote server",
+            buttons: ['OK'],
+            title: 'Remote Server Error(1)',
+        };
+        dialog.showMessageBox(BrowserWindow.getAllWindows()[0], options).then((res) => {
+            //when button "OK" clicked
+            if(res.response === 0){
+                app.quit();
+            }
+        });
+    }
+
     
     let pathFileName = path.join(process.cwd() + `/files/${fileName}`);
 
@@ -41,7 +57,6 @@ async function downloadProcess(currentWindow) {
             let totalSize = formatBytes(progress.totalBytes);
 
             updateStatus("UI_TEXT_SPLASH_ON_LAUNCHER_UPDATE", currentWindow, dlPercentage, currentDl, totalSize);
-            
 
         });
 
@@ -55,7 +70,7 @@ async function downloadProcess(currentWindow) {
             currentWindow.webContents.send("downloadDone");
             
             //start the extraction
-            startProcess(pathFileName, gamePath, "TeraElinu.exe");
+            startProcess(pathFileName, process.cwd(), "Tera-Elinu.exe", remoteVersionString[0].version_launcher);
             console.log('[ElinuLauncher]-> Start extraction...');
             
             setTimeout(async function () {//wait 1sec before quit app
@@ -76,9 +91,10 @@ async function downloadProcess(currentWindow) {
  * @param archivePath
  * @param targetDir
  * @param launcherPath
+ * @param launcherNewVersion
  */
-function startProcess(archivePath, targetDir, launcherPath) {
-    let child = spawn('start "EL Updater"', ['ElinuUpdater.exe', archivePath, targetDir, launcherPath], { detached: true, shell: true });
+function startProcess(archivePath, targetDir, launcherPath, launcherNewVersion) {
+    let child = spawn('start "EL Updater"', ['ElinuUpdater.exe', archivePath, targetDir, launcherPath, launcherNewVersion], { detached: true, shell: true });
     child.unref();
 }
 function updateStatus(stringId, win, dlPercentage, currentDl, totalSize) {

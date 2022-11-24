@@ -25,7 +25,9 @@
         },
         "extraResource": [
           "./teraElinu.json",
-          "./ElinuLauncher.dll"
+          "./ElinuLauncher.dll",
+          "./DotNetZip.dll",
+          "./ElinuUpdater.exe"
         ],
         "icon": "TeraElinuIcon.ico"
       },

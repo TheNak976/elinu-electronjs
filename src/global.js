@@ -33,8 +33,24 @@ global.launcherConfig = (function () {
 })();
 
 global.remoteJsonVersion = (async function () {
-    let response = await axios.get("http://127.0.0.1:3000/" + 'version.json');
-    return response.data;
+    try {
+        let response = await axios.get("http://127.0.0.1:3000/" + 'version.json');
+        return response.data;
+    }catch (e) {
+        const options = {
+            type: 'error',
+            message: "Cannot access to remote server",
+            buttons: ['OK'],
+            title: 'Remote Server Error(2)',
+        };
+        dialog.showMessageBox(BrowserWindow.getAllWindows()[0], options).then((res) => {
+            //when button "OK" clicked
+            if(res.response === 0){
+                app.quit();
+            }
+        });
+    }
+
 })();
 
 

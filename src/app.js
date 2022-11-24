@@ -43,6 +43,7 @@ const createWindow = () => {
     }catch (e){
     }
     
+    !fs.existsSync(path.join(process.cwd() + "/files/")) && fs.mkdirSync(path.join(process.cwd() + "/files/"), {recursive: true})
     
     // Load the splash screen on first
     splash = new BrowserWindow({
@@ -50,7 +51,7 @@ const createWindow = () => {
         height: 360,
         transparent: true,
         frame: false,
-        alwaysOnTop: true,
+        //alwaysOnTop: true,
         webPreferences: {
             contextIsolation: true,
             preload: path.join(__dirname, 'preload.js'),
@@ -326,8 +327,6 @@ ipcMain.on('saveUserClientLocation', async (event, clientInputString) => {
 
 
 ipcMain.on("downloadUpdate", (event) => {
-    !fs.existsSync(path.join(process.cwd() + "/files/")) && fs.mkdirSync(path.join(process.cwd() + "/files/"), {recursive: true})
-
     console.log("[ElinuLauncher]-> downloading update")
     // Multi connections
     downloader.downloadProcess(mainW)
