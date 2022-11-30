@@ -123,7 +123,7 @@
             <div class="login-page-loginbox">
                 <div class="login-page-login-form">
               <span class="login-page-login-title">
-                <span>ENTER YOUR CREDENTIALS</span>
+                <span id="loginTitle">ENTER YOUR CREDENTIALS</span>
               </span>
                     <div class="login-page-logincont">
                         <div class="login-page-inputbox">
@@ -169,10 +169,10 @@
                     </a>
                     <div class="login-page-ifnoaccount">
                         <span class="login-page-text2">
-                          <span>Don’t have an account yet?</span>
+                          <span id="noAccount">Don’t have an account yet?</span>
                         </span>
                         <a href="#" id="signup-txt" class="login-page-sign-up-text">
-                            <span>Sign Up</span>
+                            <span id="signUpLink">Sign Up</span>
                         </a>
                     </div>
                 </div>
@@ -186,8 +186,13 @@
 <script src="loginRenderer.js"></script>
 <script src="renderer.js"></script>
 <script>
-    _TEXT_TRANSLATE(document.getElementById("login"), 'UI_TEXT_LOGIN_BUTTON_LOGIN')
-    _TEXT_TRANSLATE(document.getElementById("stayConnectedText"), 'UI_TEXT_LOGIN_STAY_TEXT')
+    _TEXT_TRANSLATE_PLACEHOLDER(document.getElementById("username"), "UI_TEXT_LOGIN_USERNAME_PLACEHOLDER");
+    _TEXT_TRANSLATE_PLACEHOLDER(document.getElementById("password"), "UI_TEXT_LOGIN_PASSWORD_PLACEHOLDER");
+    _TEXT_TRANSLATE(document.getElementById("loginTitle"), 'UI_TEXT_LOGIN_TITLE');
+    _TEXT_TRANSLATE(document.getElementById("noAccount"), 'UI_TEXT_LOGIN_USER_NO_ACCOUNT');
+    _TEXT_TRANSLATE(document.getElementById("signUpLink"), 'UI_TEXT_LOGIN_SIGNUP_LINK');
+    _TEXT_TRANSLATE(document.getElementById("login"), 'UI_TEXT_LOGIN_BUTTON_LOGIN');
+    _TEXT_TRANSLATE(document.getElementById("stayConnectedText"), 'UI_TEXT_LOGIN_STAY_TEXT');
 </script>
 </body>
 </html>

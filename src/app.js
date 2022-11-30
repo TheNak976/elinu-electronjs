@@ -11,7 +11,7 @@ const login = require('./login');
 const { basename } = require("path");
 const currentDirectory = basename(process.cwd());
 const axios = require('axios');
-const { tcpPingPort } = require("tcp-ping-port")
+const { tcpPingPort } = require("tcp-ping-port");
 const global = require('./global');
 const {remoteJsonVersion} = require("./global");
 
@@ -78,7 +78,7 @@ const createWindow = () => {
             
             let createRemoteVersion = fs.createWriteStream('./version.txt', 'utf-8');
             createRemoteVersion.write("1.0.0");
-            console.log("[ElinuLauncher]-> version.txt created!")
+            console.log("[ElinuLauncher]-> version.txt created!");
             
         }
         
@@ -254,15 +254,28 @@ const createWindow = () => {
             }else {
                 console.log(`[ElinuLauncher]-> Client update available with version: ${remoteVersionString[0].version_client_updates}`);
                 console.log(`[ElinuLauncher]-> localVersion is : ${localVersionClientUpdates}`);
-                //let updateRemoteVersion = fs.createWriteStream('./version.txt', 'utf-8');
-                //updateRemoteVersion.write(remoteVersionString[0].version_client_updates);
+                //todo do clientUpdates
+                mainW.webContents.send('processingUpdate');
+
             }
 
         } catch (e) {
             console.error(e);
         }
-    }   
-    
+    }
+    ipcMain.on('updateExtractingDone', async (event, arg) => {
+        
+        try {
+
+            remoteVersionString = await getRemoteVersion;
+            let updateRemoteVersion = fs.createWriteStream('./version.txt', 'utf-8');
+            updateRemoteVersion.write(remoteVersionString[0].version_client_updates);
+            console.log(`[ElinuLauncher]-> version.txt has been up to date with version: ${remoteVersionString[0].version_client_updates}`)
+        } catch (e) {
+            console.error(e);
+        }
+
+    })
     
     MessageListener = elinu_launcher.registerMessageListener((message, code) => {
         switch (message) {
@@ -358,7 +371,7 @@ ipcMain.on('logout', async (event) => {
 ipcMain.on('langSelected', (event, lang) => {
     launcherConfig.lang = lang;
     fs.writeFileSync(path.join(process.cwd(), 'teraElinu.json'), JSON.stringify(launcherConfig, null, 4));
-    mainW.loadURL(`file://${__dirname}/main.html?lang=${global.launcherConfig.lang}`);
+    mainW.loadURL(`file://${__dirname}/main.html?lang=${global.launcherConfig.lang}&users=${localStore.get('users')} `);
     winLogin.loadURL(`file://${__dirname}/index.html?lang=${global.launcherConfig.lang}`);
 });
 

@@ -3,7 +3,7 @@ const lStorage = require("./storageServices")
 console.log("Init AuthServices");
 
 async function login(credentials) {
-    let url = "https://tera-elinu.eu/tera/LauncherLoginAction";
+    let url = "http://tera-elinu.eu/tera/LauncherLoginAction";
     let response = await fetch(url, {
         method: "POST",
         headers: {

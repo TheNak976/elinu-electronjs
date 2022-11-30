@@ -6,6 +6,13 @@ function _TEXT_TRANSLATE_LABEL(stringId) {
     console.log(window.langStrings[window.language][stringId])
     return window.langStrings[window.language][stringId];
 }
+
+function _TEXT_TRANSLATE_PLACEHOLDER(el, stringId){
+    el.placeholder = window.langStrings[window.language][stringId];
+}
+function _TEXT_TRANSLATE_TITLE(el, stringId){
+    el.title = window.langStrings[window.language][stringId];
+}
 function capitalize(str){
     //capitalize the first letter
     return str.charAt(0).toUpperCase() + str.slice(1);

@@ -1,5 +1,5 @@
 const ffi = require('ffi-napi');
-const SLS_URL = "https://tera-elinu.eu/server/serverlist";
+const SLS_URL = "http://tera-elinu.eu/server/serverlist";
 const {app, BrowserWindow, ipcMain, dialog} = require('electron');
 const Store = require('electron-store');
 

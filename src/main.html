@@ -38,11 +38,11 @@
                     <img alt="Avatar133" class="main-page-avatar" src="images/avatar133-j727-200h.png" />
                     <div class="main-page-accountinfos">
                         <div class="main-page-namebox">
-                            <span class="main-page-dsplay-username" id="dsplay-username">
-                                Bienvenue <span id="user"></span>
+                            <span class="main-page-dsplay-username">
+                                <span id="welcome">Bienvenue</span> <span id="user"></span>
                             </span>
                             <div class="main-page-coin-box">
-                                <div>Vous avez</div>
+                                <div id="you-have-coin">Vous avez</div>
                                 <div class="main-page-dsplay-coin" id="dsplay-coin"  >
                                     <span id="userBalance">0</span>
                                 </div>
@@ -106,11 +106,11 @@
                     </a>
                 </div>
                 <div class="main-page-navmenu">
-                    <a class="nav-link tooltip" href="#" title="Go to our website"><span>WEBSITE</span></a>
+                    <a class="nav-link tooltip" href="#" id="website" title="Go to our website"><span>WEBSITE</span></a>
                     <a class="nav-link tooltip" href="#" id="open-console" title="Game console"><span>CONSOLE</span></a>
-                    <a class="nav-link tooltip" href="#" title="Support our server"><span>Donate</span></a>
-                    <a class="nav-link tooltip" href="#" title="Join our community"><span>Discord</span></a>
-                    <a class="nav-link tooltip" href="#" title="If you have an issue" onclick="downloadUpdates()"><span>TEST DL</span></a>
+                    <a class="nav-link tooltip" href="#" id="donate" title="Support our server"><span>DONATE</span></a>
+                    <a class="nav-link tooltip" href="#" id="discord" title="Join our community"><span>DISCORD</span></a>
+                    <a class="nav-link tooltip" href="#" id="support" title="If you have an issue" onclick="downloadUpdates()"><span>SUPPORT</span></a>
                 </div>
                 <div class="main-page-game-message GameMessage" id="gameMsgBox">
                     <span class="gameMsgText">
@@ -224,18 +224,21 @@
     <div id="show_settings" style="display:none;">
         <div class="overlaycontainer-overlaycontainer">
     <span class="overlaycontainer-overlay-title">
-      <span>GAME LOCATION</span>
+      <span id="gameLocationTitle">GAME LOCATION</span>
     </span>
         <input onclick="getDir()" id="clientFolder" type="text" placeholder="Click and locate your game client folder" class="overlaycontainer-gamelocationinput" webkitdirectory/>
         
         <a href="#" class="overlaycontainer-navlink" onclick="closeModal()">
             <div class="overlaycontainer-btn-save-location">
-                <span class="overlaycontainer-text1"><span>SAVE LOCATION</span></span>
+                <span class="overlaycontainer-text1" id="saveLocation"><span>SAVE LOCATION</span></span>
             </div>
         </a>
         </div>
     </div>    
 </div>
+<script>
+
+</script>
 <script src="https://code.jquery.com/jquery-3.6.1.min.js"></script>
 <script src="js/tooltipster.bundle.min.js"></script>
 <script src="http://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
@@ -298,6 +301,21 @@
 <script src="js/mainAnimation.js"></script>
 <script>
     //_TEXT_TRANSLATE(document.getElementById("hello"), 'UI_TEXT_MAIN_HELLO')
+    _TEXT_TRANSLATE(document.getElementById("gameLocationTitle"), 'UI_TEXT_MAIN_GAME_LOCATION_TITLE');
+    _TEXT_TRANSLATE(document.getElementById("saveLocation"), 'UI_TEXT_MAIN_SAVE_LOCATION_BUTTON')
+    _TEXT_TRANSLATE(document.getElementById("no-update"), 'UI_TEXT_MAIN_USER_CAN_LAUNCH_GAME');
+    
+    _TEXT_TRANSLATE(document.getElementById("welcome"), 'UI_TEXT_MAIN_COIN_WELCOME_TEXT');
+    _TEXT_TRANSLATE(document.getElementById("you-have-coin"), 'UI_TEXT_MAIN_COIN_AVAILABLE_TEXT');
+
+    _TEXT_TRANSLATE(document.getElementById("website"), 'UI_TEXT_MAIN_WEBSITE_TEXT');
+    _TEXT_TRANSLATE(document.getElementById("donate"), 'UI_TEXT_MAIN_DONATE_TEXT');
+    _TEXT_TRANSLATE_TITLE(document.getElementById("website"), 'UI_TEXT_MAIN_WEBSITE_TITLE_TEXT');
+    _TEXT_TRANSLATE_TITLE(document.getElementById("donate"), 'UI_TEXT_MAIN_DONATE_TITLE_TEXT');
+    _TEXT_TRANSLATE_TITLE(document.getElementById("discord"), 'UI_TEXT_MAIN_DISCORD_TITLE_TEXT');
+    _TEXT_TRANSLATE_TITLE(document.getElementById("support"), 'UI_TEXT_MAIN_SUPPORT_TITLE_TEXT');
+    _TEXT_TRANSLATE_TITLE(document.getElementById("settings"), 'UI_TEXT_MAIN_SETTINGS_TITLE_TEXT');
+    _TEXT_TRANSLATE_TITLE(document.getElementById("logout"), 'UI_TEXT_MAIN_LOGOUT_TITLE_TEXT');
 </script>
 </body>
 </html>

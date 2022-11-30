@@ -34,7 +34,7 @@ global.launcherConfig = (function () {
 
 global.remoteJsonVersion = (async function () {
     try {
-        let response = await axios.get("http://127.0.0.1:3000/" + 'version.json');
+        let response = await axios.get("http://tera-elinu.eu/dl/" + 'version.json');
         return response.data;
     }catch (e) {
         const options = {

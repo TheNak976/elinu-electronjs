@@ -5,6 +5,7 @@ const authServices = require('./services/authServices');
 const Store = require('electron-store');
 const notifier = require('node-notifier');
 const langStrings = require('../langStrings.json');
+const global = require("./global");
 
 //vars
 let credentials;
@@ -35,7 +36,7 @@ async function doLogin(mainW, winLogin, event, username, password, stayConnected
                     mainW.webContents.send('users', JSON.parse(localStore.get('users')));
                     mainW.webContents.send('stayCo', JSON.parse(localStore.get('ifStayConnected')));
 
-                    let successMsg = "Successfully connected..."
+                    let successMsg = langStrings[global.launcherConfig.lang]["UI_TEXT_LOGIN_SUCCESS_MSG"]
                     winLogin.webContents.send('loginSuccess', successMsg);
 
                     //redirect if success
@@ -47,10 +48,10 @@ async function doLogin(mainW, winLogin, event, username, password, stayConnected
 
                 } else {
                     if (msg === 2) {
-                        event.reply('authError', "Enter Name and Password");
+                        event.reply('authError', langStrings[global.launcherConfig.lang]["UI_TEXT_LOGIN_ERROR_NAME_PASSWORD"]);//
                     }
                     if (msg === 50000) {
-                        event.reply('authError', "Your credentials is incorrect. Please try again");
+                        event.reply('authError', langStrings[global.launcherConfig.lang]["UI_TEXT_LOGIN_ERROR_CREDENTIALS"]);
                     }
                 }
             }

@@ -823,7 +823,7 @@ input[type="checkbox"]:checked::before {
   -webkit-app-region: no-drag;
   top: 57px;
   left: 400px;
-  width: 401px;
+  width: 431px;
   height: 41px;
   display: flex;
   padding: 10px;
